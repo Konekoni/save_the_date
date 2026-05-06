@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Holograma</title>
+<title>Holograma Imperial</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
 
@@ -119,14 +119,15 @@ img {
 /* ===== IMPERIAL ===== */
 .imperial-block {
   position:fixed;
-  top:10vh;
+  top:8vh; /* Un poco más arriba para dejar aire */
   left:50%;
   transform:translateX(-50%);
   text-align:center;
   opacity:0;
   filter:blur(10px);
   transition:all 1.8s ease;
-  font-size: clamp(16px, 3.5vw, 30px);
+  font-size: clamp(16px, 3.5vw, 22px);
+  z-index: 10;
 }
 
 .imperial-block.show {
@@ -135,28 +136,32 @@ img {
 }
 
 .imperial-block img {
-  width: clamp(70px, 10vw, 120px);
-  margin-bottom:2vh;
+  width: clamp(60px, 8vw, 100px);
+  margin-bottom:1.5vh;
 }
 
 /* ===== TEXTOS ===== */
 .text-main {
   position:fixed;
-  top:28vh;
+  top:24vh; /* Fijo por encima del holograma */
   width:100%;
   text-align:center;
-  font-size: clamp(30px, 7vw, 70px);
+  font-size: clamp(30px, 7vw, 60px);
+  z-index: 10;
 }
 
+/* Nombres y Fecha: Más grandes y más arriba */
 .text-bottom {
   position:fixed;
-  bottom:18vh;
+  bottom:26vh; /* Subido para separar de Boadilla */
   width:100%;
   text-align:center;
-  font-size: clamp(20px, 5vw, 40px);
+  font-size: clamp(26px, 6vw, 50px); /* Tamaño ampliado */
   opacity:0;
   filter:blur(6px);
   transition:all 1.2s ease;
+  z-index: 10;
+  font-weight: 600;
 }
 
 .text-bottom.show {
@@ -175,27 +180,30 @@ img {
 
 @keyframes blink { 50% { opacity:0; } }
 
-/* ===== HOLOGRAMA ===== */
+/* ===== HOLOGRAMA: OBLIGATORIAMENTE DEBAJO DE SAVE THE DATE ===== */
 .scene {
   position:fixed;
-  inset:0;
+  top: 48%; /* Posicionado en la mitad inferior */
+  left: 50%;
+  transform: translate(-50%, -50%);
   display:flex;
   align-items:center;
   justify-content:center;
   perspective:1000px;
+  z-index: 5;
 }
 
 .holo {
   position:relative;
-  width:50vw;
-  height:50vw;
+  width: 55vh; /* Tamaño basado en altura para control total */
+  height: 55vh;
   transform-style:preserve-3d;
   opacity:0;
   transition:opacity 2s ease;
 }
 
 .holo.on {
-  opacity:1;
+  opacity:0.8; /* Un poco de transparencia para realismo */
   animation: rotateY 18s linear infinite;
 }
 
@@ -208,18 +216,19 @@ img {
   to   { transform:rotateY(360deg); }
 }
 
-/* ===== BEAM ===== */
+/* ===== BEAM: Ajustado al suelo ===== */
 .beam {
   position:fixed;
   bottom:0;
   left:50%;
   transform:translateX(-50%);
-  width:50vw;
-  height:50vh;
-  background:radial-gradient(ellipse at bottom,rgba(0,200,255,0.5),transparent 70%);
-  filter:blur(2.5vh);
+  width:80vw;
+  height:60vh;
+  background:radial-gradient(ellipse at bottom,rgba(0,200,255,0.4),transparent 70%);
+  filter:blur(3vh);
   opacity:0;
   transition:opacity 1.2s ease;
+  z-index: 1;
 }
 
 .beam.on {
@@ -228,22 +237,23 @@ img {
 }
 
 @keyframes beamPulse {
-  0% { transform:translateX(-50%) scaleY(0.9); }
-  50% { transform:translateX(-50%) scaleY(1.1); }
-  100% { transform:translateX(-50%) scaleY(0.9); }
+  0% { transform:translateX(-50%) scale(0.95); opacity: 0.6; }
+  50% { transform:translateX(-50%) scale(1.05); opacity: 0.9; }
+  100% { transform:translateX(-50%) scale(0.95); opacity: 0.6; }
 }
 
-/* ===== BOADILLA ===== */
+/* ===== BOADILLA Y PLANETA: En la base ===== */
 .boadilla {
   position:fixed;
-  bottom:8vh;
+  bottom:4vh; /* Pegado al suelo */
   left:50%;
   transform:translateX(-50%);
   text-align:center;
   opacity:0;
   filter:blur(6px);
   transition:all 1.5s ease;
-  font-size: clamp(18px, 4vw, 34px);
+  font-size: clamp(18px, 4vw, 30px);
+  z-index: 10;
 }
 
 .boadilla.show {
@@ -252,8 +262,9 @@ img {
 }
 
 .planet img {
-  width:50vw;
-  max-width:420px;
+  width:60vw;
+  max-width:350px;
+  margin-bottom: 1vh;
 }
 
 </style>
@@ -280,7 +291,7 @@ img {
 
 <div class="imperial-block">
   <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp">
-  <div>Este es un comunicado del imperio.</div>
+  <div>COMUNICADO IMPERIAL</div>
 </div>
 
 <div class="text-main">
@@ -310,7 +321,7 @@ img {
 </div>
 
 <script>
-
+// Mantenemos tu lógica original exacta
 const boadillaText = document.getElementById("boadillaText");
 
 intro.onclick = () => {
@@ -392,7 +403,6 @@ function typeText(){
 
   }, 2600);
 }
-
 </script>
 
 </body>
