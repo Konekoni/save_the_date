@@ -47,8 +47,8 @@ img {
   mix-blend-mode: screen;
 }
 
-/* ===== INTRO ===== */
-#intro {
+/* ===== PANTALLAS INICIALES ===== */
+#intro, #loading, #access {
   position:fixed;
   inset:0;
   display:flex;
@@ -57,34 +57,12 @@ img {
   align-items:center;
   z-index:10000;
   text-align:center;
+  background: black;
 }
 
-#intro img {
-  width: clamp(70px, 12vw, 140px);
-}
-
-#intro .imperial {
-  font-size: clamp(28px, 6vw, 56px);
-  text-shadow:0 0 1.5vh #00e5ff;
-  margin-bottom:2vh;
-}
-
-#intro .touch {
-  font-size: clamp(14px, 3vw, 22px);
-  opacity:0.8;
-  letter-spacing:0.3em;
-}
-
-/* ===== LOADING ===== */
-#loading {
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  z-index:9999;
-}
+#intro img { width: clamp(70px, 10vw, 140px); }
+#intro .imperial { font-size: clamp(38px, 6vw, 56px); text-shadow:0 0 1.5vh #00e5ff; margin-bottom:2vh; }
+#intro .touch { font-size: clamp(14px, 3vw, 22px); opacity:0.8; letter-spacing:0.4em; margin-bottom:2vh; }
 
 .spinner {
   width: clamp(35px, 8vw, 60px);
@@ -92,195 +70,139 @@ img {
   border:2px solid rgba(0,229,255,0.2);
   border-top:2px solid #00e5ff;
   border-radius:50%;
-  animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;  margin-bottom:1vh;
 }
-
 @keyframes spin { to { transform:rotate(360deg); } }
 
-/* ===== ACCESS ===== */
-#access {
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  font-size: clamp(22px, 5vw, 40px);
-  letter-spacing:0.3em;
-  text-shadow:0 0 1.5vh #00e5ff;
-  z-index:9998;
-  transition:opacity 1.5s ease;
-}
-
+#access { font-size: clamp(22px, 5vw, 40px); letter-spacing:0.3em; transition:opacity 1.5s ease; }
 #access.fade { opacity:0; }
 
 /* ===== CONTENIDO ===== */
-#content { display:none; }
+#content { display:none; height: 100vh; width: 100vw; position: relative; }
 
-/* ===== IMPERIAL (CORREGIDO: MÁS ARRIBA Y PEQUEÑO) ===== */
+/* 1. IMPERIAL (Logo superior) */
 .imperial-block {
-  position:fixed;
-  top:2vh; /* Pegado arriba */
-  left:50%;
-  transform:translateX(-50%);
+  position:relative;
+  top:3vh; /* Un poco más de margen superior */
   text-align:center;
   opacity:0;
   filter:blur(10px);
   transition:all 1.8s ease;
-  font-size: clamp(12px, 2.5vw, 16px); /* Texto pequeño */
-  z-index: 10;
-  width: 100%;
+  font-size: clamp(12px, 1.5vw, 13px);
+  z-index: 20;
+  letter-spacing: 0.2em;
 }
+.imperial-block.show { opacity:1; filter:blur(0); }
+.imperial-block img { width: clamp(35px, 4.5vh, 55px); margin-bottom:1vh; }
 
-.imperial-block.show {
-  opacity:1;
-  filter:blur(0);
-}
-
-.imperial-block img {
-  width: clamp(40px, 6vw, 60px); /* Icono más pequeño */
-  margin-bottom:1vh;
-}
-
-/* ===== TEXTOS ===== */
+/* 2. SAVE THE DATE */
 .text-main {
-  position:fixed;
-  top:18vh; /* Bajado un poco para el icono */
+  position:absolute;
+  top: 16vh; /* Bajado para que no choque con el logo */
   width:100%;
   text-align:center;
-  font-size: clamp(30px, 7vw, 60px);
-  z-index: 10;
+  font-size: clamp(35px, 6.5vw, 48px); /* Tamaño aumentado */
+  z-index: 20;
+  letter-spacing: 0.05em;
 }
 
-/* CURSOR CUADRADO (CORREGIDO) */
-.cursor {
-  display:none; /* Oculto inicialmente */
-  width: clamp(15px, 3.5vw, 30px); /* Ancho cuadrado */
-  height: clamp(15px, 3.5vw, 30px); /* Alto cuadrado */
-  background:#00e5ff;
-  margin-left:0.8vw;
-  animation:blink 1s steps(1) infinite;
-  vertical-align: middle;
-}
-
-.cursor.visible {
-    display: inline-block; /* Se muestra por JS */
-}
-
-@keyframes blink { 50% { opacity:0; } }
-
-/* Nombres y Fecha: MÁS GRANDES Y MÁS ARRIBA (CORREGIDO) */
-.text-bottom {
-  position:fixed;
-  bottom:35vh; /* Mucho más arriba para separar del planeta */
-  width:100%;
-  text-align:center;
-  font-size: clamp(32px, 8vw, 60px); /* Tamaño ampliado significativamente */
-  opacity:0;
-  filter:blur(6px);
-  transition:all 1.2s ease;
-  z-index: 10;
-  font-weight: 600;
-}
-
-.text-bottom.show {
-  opacity:1;
-  filter:blur(0);
-}
-
-#names {
-    margin-bottom: 1vh;
-}
-
-/* ===== HOLOGRAMA: MÁS GRANDE (CORREGIDO) ===== */
+/* 3. HOLOGRAMA */
 .scene {
-  position:fixed;
-  top: 50%; /* Centrado relativo */
+  position:absolute;
+  top: 48vh; /* Ajustado para dejar espacio al texto superior crecido */
   left: 50%;
   transform: translate(-50%, -50%);
-  display:flex;
-  align-items:center;
-  justify-content:center;
   perspective:1000px;
   z-index: 5;
 }
-
 .holo {
   position:relative;
-  width: 70vh; /* Aumentado tamaño */
-  height: 70vh;
+  width: 48vh; 
+  height: 48vh;
   transform-style:preserve-3d;
   opacity:0;
   transition:opacity 2s ease;
 }
-
-.holo.on {
-  opacity:0.8; 
-  animation: rotateY 18s linear infinite;
+.holo.on { opacity:0.8; animation: rotateY 18s linear infinite; }
+.holo img { 
+    width:100%; 
+    height: 100%; 
+    object-fit: contain; 
 }
 
-.holo img {
+/* 4. NOMBRES Y FECHA */
+.text-bottom {
+  position:absolute;
+  top: 70vh; /* Bajado ligeramente para equilibrar */
   width:100%;
-}
-
-@keyframes rotateY {
-  from { transform:rotateY(0deg); }
-  to   { transform:rotateY(360deg); }
-}
-
-/* ===== BEAM ===== */
-.beam {
-  position:fixed;
-  bottom:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:90vw;
-  height:70vh;
-  background:radial-gradient(ellipse at bottom,rgba(0,200,255,0.4),transparent 70%);
-  filter:blur(3vh);
+  text-align:center;
+  font-size: clamp(22px, 5vw, 42px);
   opacity:0;
-  transition:opacity 1.2s ease;
-  z-index: 1;
+  filter:blur(6px);
+  transition:all 1.2s ease;
+  z-index: 20;
+  font-weight: 400;
 }
+.text-bottom.show { opacity:1; filter:blur(0); }
 
-.beam.on {
-  opacity:1;
-  animation:beamPulse 1.8s ease-in-out infinite;
-}
-
-@keyframes beamPulse {
-  0% { transform:translateX(-50%) scale(0.95); opacity: 0.6; }
-  50% { transform:translateX(-50%) scale(1.05); opacity: 0.9; }
-  100% { transform:translateX(-50%) scale(0.95); opacity: 0.6; }
-}
-
-/* ===== BOADILLA Y PLANETA: MÁS PEQUEÑO Y ABAJO (CORREGIDO) ===== */
+/* 5. BOADILLA Y PLANETA */
 .boadilla {
-  position:fixed;
-  bottom:2vh; /* Muy pegado al suelo */
+  position:absolute;
+  bottom: 2vh;
   left:50%;
   transform:translateX(-50%);
   text-align:center;
   opacity:0;
   filter:blur(6px);
   transition:all 1.5s ease;
-  font-size: clamp(16px, 3.5vw, 24px); /* Texto más pequeño */
+  font-size: clamp(14px, 3vw, 20px);
   z-index: 10;
 }
-
-.boadilla.show {
-  opacity:1;
-  filter:blur(0);
-}
-
+.boadilla.show { opacity:1; filter:blur(0); }
 .planet img {
-  width:40vw; /* Planeta más pequeño */
-  max-width:250px;
+  width: 22vw;
+  max-width: 130px;
   margin-bottom: 0.5vh;
 }
 
+/* CURSOR */
+.cursor {
+  display:none;
+  width: clamp(12px, 2vw, 18px);
+  height: clamp(12px, 2vw, 18px);
+  background:#00e5ff;
+  margin-left:8px;
+  animation:blink 1s steps(1) infinite;
+  vertical-align: middle;
+}
+.cursor.visible { display: inline-block; }
+
+/* HAZ DE LUZ */
+.beam {
+  position:fixed;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  width:85vw;
+  height:65vh;
+  background:radial-gradient(ellipse at bottom,rgba(0,200,255,0.3),transparent 75%);
+  filter:blur(4vh);
+  opacity:0;
+  transition:opacity 1.2s ease;
+  z-index: 1;
+}
+.beam.on { opacity:1; animation:beamPulse 2s ease-in-out infinite; }
+
+/* ANIMACIONES */
+@keyframes rotateY { from { transform:rotateY(0deg); } to { transform:rotateY(360deg); } }
+@keyframes beamPulse {
+  0%, 100% { transform:translateX(-50%) scale(0.95); opacity: 0.4; }
+  50% { transform:translateX(-50%) scale(1.05); opacity: 0.6; }
+}
+@keyframes blink { 50% { opacity:0; } }
+
 </style>
 </head>
-
 <body>
 
 <div class="scanlines"></div>
@@ -291,48 +213,52 @@ img {
   <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/880868.png">
 </div>
 
-<div id="loading">
+<div id="loading" style="display:none;">
   <div class="spinner"></div>
-  <div>verifying identity...</div>
+  <div style="margin-top:15px">verifying identity...</div>
 </div>
 
-<div id="access">ACCESS APPROVED</div>
+<div id="access" style="display:none;">ACCESS APPROVED</div>
 
 <div id="content">
 
-<div class="imperial-block">
-  <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp">
-  <div>imperial communication</div> </div>
-
-<div class="text-main">
-  <span id="mainText"></span><span class="cursor" id="cursor"></span> </div>
-
-<div class="text-bottom" id="bottomText">
-  <div id="names"></div>
-  <div id="date"></div>
-</div>
-
-<div class="scene">
-  <div class="holo">
-    <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/Sin%20t%C3%ADtulo3.png">
+  <div class="imperial-block">
+    <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp">
+    <div>imperial communication</div>
   </div>
-</div>
 
-<div class="beam"></div>
-
-<div class="boadilla" id="boadilla">
-  <div class="planet">
-    <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/background-with-geometric-linear-sphere.png">
+  <div class="text-main">
+    <span id="mainText"></span><span class="cursor" id="cursor"></span>
   </div>
-  <div><span id="boadillaText"></span></div>
-</div>
+
+  <div class="scene">
+    <div class="holo">
+      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/Sin%20t%C3%ADtulo3.png">
+    </div>
+  </div>
+
+  <div class="text-bottom" id="bottomText">
+    <div id="names"></div>
+    <div id="date"></div>
+  </div>
+
+  <div class="beam"></div>
+
+  <div class="boadilla" id="boadilla">
+    <div class="planet">
+      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/background-with-geometric-linear-sphere.png">
+    </div>
+    <div><span id="boadillaText"></span></div>
+  </div>
 
 </div>
 
 <script>
-// Mantenemos tu lógica original exacta
-const boadillaText = document.getElementById("boadillaText");
-const cursor = document.getElementById("cursor"); // Referencia al cursor
+const intro = document.getElementById("intro");
+const loading = document.getElementById("loading");
+const access = document.getElementById("access");
+const content = document.getElementById("content");
+const cursor = document.getElementById("cursor");
 
 intro.onclick = () => {
   intro.style.display="none";
@@ -344,14 +270,11 @@ intro.onclick = () => {
 
     setTimeout(()=>{
       access.classList.add("fade");
-
       setTimeout(()=>{
         access.style.display="none";
         start();
       },1500);
-
     },1200);
-
   },1800);
 };
 
@@ -362,58 +285,45 @@ function start(){
     document.querySelector(".imperial-block").classList.add("show");
   },800);
 
-  // El cursor se hace visible cuando comienza el mensaje imperial
   setTimeout(()=>{
     cursor.classList.add("visible");
     document.querySelector(".beam").classList.add("on");
-
     setTimeout(()=>{
       document.querySelector(".holo").classList.add("on");
     },1200);
+  },2500);
 
-  },3000);
-
-  setTimeout(typeText,5200);
+  setTimeout(typeText,4500);
 }
 
 function type(el, text, speed, callback){
   let i = 0;
   el.textContent = "";
-
   function t(){
     if(i < text.length){
       el.textContent += text[i++];
       setTimeout(t, speed);
-    } else {
-      if(callback) callback();
-    }
+    } else if(callback) callback();
   }
-
   t();
 }
 
 function typeText(){
-  type(mainText, "Save the date...", 70);
-
-  setTimeout(()=>{
-    bottomText.classList.add("show");
-
-    type(names, "Irene & Nacho", 60, ()=>{
-      setTimeout(()=>{
-        type(date, "15-05-2027", 60);
-      }, 200);
-    });
-
-  }, 1200);
-
-  setTimeout(()=>{
-    boadilla.classList.add("show");
-
+  type(mainText, "Save the date...", 70, () => {
     setTimeout(()=>{
-      type(boadillaText, "BOADILLA", 80);
-    }, 400);
-
-  }, 2600);
+      document.getElementById("bottomText").classList.add("show");
+      type(names, "Irene & Nacho", 60, ()=>{
+        setTimeout(()=>{
+          type(date, "15-05-2027", 60, () => {
+            setTimeout(()=>{
+              document.getElementById("boadilla").classList.add("show");
+              type(boadillaText, "BOADILLA", 80);
+            }, 500);
+          });
+        }, 200);
+      });
+    }, 800);
+  });
 }
 </script>
 
