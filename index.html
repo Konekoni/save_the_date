@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Holograma Imperial</title>
+<title>Holograma Imperial - v2</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
 
@@ -116,18 +116,19 @@ img {
 /* ===== CONTENIDO ===== */
 #content { display:none; }
 
-/* ===== IMPERIAL ===== */
+/* ===== IMPERIAL (CORREGIDO: MÁS ARRIBA Y PEQUEÑO) ===== */
 .imperial-block {
   position:fixed;
-  top:8vh; /* Un poco más arriba para dejar aire */
+  top:2vh; /* Pegado arriba */
   left:50%;
   transform:translateX(-50%);
   text-align:center;
   opacity:0;
   filter:blur(10px);
   transition:all 1.8s ease;
-  font-size: clamp(16px, 3.5vw, 22px);
+  font-size: clamp(12px, 2.5vw, 16px); /* Texto pequeño */
   z-index: 10;
+  width: 100%;
 }
 
 .imperial-block.show {
@@ -136,27 +137,44 @@ img {
 }
 
 .imperial-block img {
-  width: clamp(60px, 8vw, 100px);
-  margin-bottom:1.5vh;
+  width: clamp(40px, 6vw, 60px); /* Icono más pequeño */
+  margin-bottom:1vh;
 }
 
 /* ===== TEXTOS ===== */
 .text-main {
   position:fixed;
-  top:24vh; /* Fijo por encima del holograma */
+  top:18vh; /* Bajado un poco para el icono */
   width:100%;
   text-align:center;
   font-size: clamp(30px, 7vw, 60px);
   z-index: 10;
 }
 
-/* Nombres y Fecha: Más grandes y más arriba */
+/* CURSOR CUADRADO (CORREGIDO) */
+.cursor {
+  display:none; /* Oculto inicialmente */
+  width: clamp(15px, 3.5vw, 30px); /* Ancho cuadrado */
+  height: clamp(15px, 3.5vw, 30px); /* Alto cuadrado */
+  background:#00e5ff;
+  margin-left:0.8vw;
+  animation:blink 1s steps(1) infinite;
+  vertical-align: middle;
+}
+
+.cursor.visible {
+    display: inline-block; /* Se muestra por JS */
+}
+
+@keyframes blink { 50% { opacity:0; } }
+
+/* Nombres y Fecha: MÁS GRANDES Y MÁS ARRIBA (CORREGIDO) */
 .text-bottom {
   position:fixed;
-  bottom:26vh; /* Subido para separar de Boadilla */
+  bottom:35vh; /* Mucho más arriba para separar del planeta */
   width:100%;
   text-align:center;
-  font-size: clamp(26px, 6vw, 50px); /* Tamaño ampliado */
+  font-size: clamp(32px, 8vw, 60px); /* Tamaño ampliado significativamente */
   opacity:0;
   filter:blur(6px);
   transition:all 1.2s ease;
@@ -169,21 +187,14 @@ img {
   filter:blur(0);
 }
 
-.cursor {
-  display:inline-block;
-  width:1vw;
-  height:4vh;
-  background:#00e5ff;
-  margin-left:0.8vw;
-  animation:blink 1.2s steps(1) infinite;
+#names {
+    margin-bottom: 1vh;
 }
 
-@keyframes blink { 50% { opacity:0; } }
-
-/* ===== HOLOGRAMA: OBLIGATORIAMENTE DEBAJO DE SAVE THE DATE ===== */
+/* ===== HOLOGRAMA: MÁS GRANDE (CORREGIDO) ===== */
 .scene {
   position:fixed;
-  top: 48%; /* Posicionado en la mitad inferior */
+  top: 50%; /* Centrado relativo */
   left: 50%;
   transform: translate(-50%, -50%);
   display:flex;
@@ -195,15 +206,15 @@ img {
 
 .holo {
   position:relative;
-  width: 55vh; /* Tamaño basado en altura para control total */
-  height: 55vh;
+  width: 70vh; /* Aumentado tamaño */
+  height: 70vh;
   transform-style:preserve-3d;
   opacity:0;
   transition:opacity 2s ease;
 }
 
 .holo.on {
-  opacity:0.8; /* Un poco de transparencia para realismo */
+  opacity:0.8; 
   animation: rotateY 18s linear infinite;
 }
 
@@ -216,14 +227,14 @@ img {
   to   { transform:rotateY(360deg); }
 }
 
-/* ===== BEAM: Ajustado al suelo ===== */
+/* ===== BEAM ===== */
 .beam {
   position:fixed;
   bottom:0;
   left:50%;
   transform:translateX(-50%);
-  width:80vw;
-  height:60vh;
+  width:90vw;
+  height:70vh;
   background:radial-gradient(ellipse at bottom,rgba(0,200,255,0.4),transparent 70%);
   filter:blur(3vh);
   opacity:0;
@@ -242,17 +253,17 @@ img {
   100% { transform:translateX(-50%) scale(0.95); opacity: 0.6; }
 }
 
-/* ===== BOADILLA Y PLANETA: En la base ===== */
+/* ===== BOADILLA Y PLANETA: MÁS PEQUEÑO Y ABAJO (CORREGIDO) ===== */
 .boadilla {
   position:fixed;
-  bottom:4vh; /* Pegado al suelo */
+  bottom:2vh; /* Muy pegado al suelo */
   left:50%;
   transform:translateX(-50%);
   text-align:center;
   opacity:0;
   filter:blur(6px);
   transition:all 1.5s ease;
-  font-size: clamp(18px, 4vw, 30px);
+  font-size: clamp(16px, 3.5vw, 24px); /* Texto más pequeño */
   z-index: 10;
 }
 
@@ -262,9 +273,9 @@ img {
 }
 
 .planet img {
-  width:60vw;
-  max-width:350px;
-  margin-bottom: 1vh;
+  width:40vw; /* Planeta más pequeño */
+  max-width:250px;
+  margin-bottom: 0.5vh;
 }
 
 </style>
@@ -291,12 +302,10 @@ img {
 
 <div class="imperial-block">
   <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp">
-  <div>COMUNICADO IMPERIAL</div>
-</div>
+  <div>imperial communication</div> </div>
 
 <div class="text-main">
-  <span id="mainText"></span><span class="cursor"></span>
-</div>
+  <span id="mainText"></span><span class="cursor" id="cursor"></span> </div>
 
 <div class="text-bottom" id="bottomText">
   <div id="names"></div>
@@ -323,6 +332,7 @@ img {
 <script>
 // Mantenemos tu lógica original exacta
 const boadillaText = document.getElementById("boadillaText");
+const cursor = document.getElementById("cursor"); // Referencia al cursor
 
 intro.onclick = () => {
   intro.style.display="none";
@@ -352,7 +362,9 @@ function start(){
     document.querySelector(".imperial-block").classList.add("show");
   },800);
 
+  // El cursor se hace visible cuando comienza el mensaje imperial
   setTimeout(()=>{
+    cursor.classList.add("visible");
     document.querySelector(".beam").classList.add("on");
 
     setTimeout(()=>{
