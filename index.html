@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Holograma Imperial</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
@@ -19,7 +18,6 @@ html, body {
   color-scheme: dark;
 }
 
-/* ===== SCANLINES ===== */
 .scanlines {
   position:fixed;
   inset:0;
@@ -34,21 +32,15 @@ html, body {
   z-index:99999;
 }
 
-/* ===== GLOBAL IMAGE RECOLOR ===== */
 img {
   filter:
-    brightness(0)
-    invert(1)
-    sepia(1)
-    saturate(12)
-    hue-rotate(165deg)
-    brightness(0.9)
-    contrast(1.15)
+    brightness(0) invert(1) sepia(1) saturate(12)
+    hue-rotate(165deg) brightness(0.9) contrast(1.15)
     drop-shadow(0 0 1.5vh #00e5ff);
   mix-blend-mode: screen;
 }
 
-/* ===== PANTALLAS INICIALES ===== */
+/* ===== PANTALLAS ===== */
 #intro, #loading, #access {
   position:fixed;
   inset:0;
@@ -61,9 +53,12 @@ img {
   background: black;
 }
 
-#intro img { width: clamp(70px, 10vw, 140px); }
-#intro .imperial { font-size: clamp(38px, 6vw, 56px); text-shadow:0 0 1.5vh #00e5ff; margin-bottom:2vh; }
-#intro .touch { font-size: clamp(14px, 3vw, 22px); opacity:0.8; letter-spacing:0.4em; margin-bottom:2vh; }
+#biometric-btn {
+    width: clamp(80px, 15vw, 140px);
+    cursor: pointer;
+    transition: transform 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
 
 .spinner {
   width: clamp(35px, 8vw, 60px);
@@ -71,135 +66,66 @@ img {
   border:2px solid rgba(0,229,255,0.2);
   border-top:2px solid #00e5ff;
   border-radius:50%;
-  animation: spin 1s linear infinite;  margin-bottom:1vh;
+  animation: spin 1s linear infinite;
+  margin-bottom:15px;
 }
 @keyframes spin { to { transform:rotate(360deg); } }
-
-#access { font-size: clamp(22px, 5vw, 40px); letter-spacing:0.3em; transition:opacity 1.5s ease; }
-#access.fade { opacity:0; }
 
 /* ===== CONTENIDO ===== */
 #content { display:none; height: 100vh; width: 100vw; position: relative; }
 
-/* 1. IMPERIAL (Logo superior) */
 .imperial-block {
-  position:relative;
-  top:3vh; /* Un poco más de margen superior */
-  text-align:center;
-  opacity:0;
-  filter:blur(10px);
-  transition:all 1.8s ease;
-  font-size: clamp(12px, 1.5vw, 13px);
-  z-index: 20;
-  letter-spacing: 0.2em;
+  position:absolute; top: 2vh; width: 100%; text-align:center;
+  opacity:0; transition: opacity 1s; font-size: clamp(10px, 1.5vw, 13px);
+  z-index: 20; letter-spacing: 0.2em;
 }
-.imperial-block.show { opacity:1; filter:blur(0); }
-.imperial-block img { width: clamp(35px, 4.5vh, 55px); margin-bottom:1vh; }
+.imperial-block.show { opacity:1; }
+.imperial-block img { width: clamp(30px, 4vh, 50px); margin-bottom:0.5vh; }
 
-/* 2. SAVE THE DATE */
 .text-main {
-  position:absolute;
-  top: 16vh; /* Bajado para que no choque con el logo */
-  width:100%;
-  text-align:center;
-  font-size: clamp(35px, 6.5vw, 48px); /* Tamaño aumentado */
-  z-index: 20;
-  letter-spacing: 0.05em;
+  position:absolute; top: 13vh; width:100%; text-align:center;
+  font-size: clamp(28px, 6vw, 48px); z-index: 20;
 }
 
-/* 3. HOLOGRAMA */
 .scene {
-  position:absolute;
-  top: 48vh; /* Ajustado para dejar espacio al texto superior crecido */
-  left: 50%;
-  transform: translate(-50%, -50%);
-  perspective:1000px;
-  z-index: 5;
+  position:absolute; top: 42vh; left: 50%;
+  transform: translate(-50%, -50%); perspective:1000px; z-index: 5;
 }
 .holo {
-  position:relative;
-  width: 48vh; 
-  height: 48vh;
-  transform-style:preserve-3d;
-  opacity:0;
-  transition:opacity 2s ease;
+  position:relative; width: 40vh; height: 40vh; transform-style:preserve-3d;
+  opacity:0; transition: opacity 3s ease-in; /* Aparición lenta tras el haz */
 }
 .holo.on { opacity:0.8; animation: rotateY 18s linear infinite; }
-.holo img { 
-    width:100%; 
-    height: 100%; 
-    object-fit: contain; 
-}
 
-/* 4. NOMBRES Y FECHA */
 .text-bottom {
-  position:absolute;
-  top: 70vh; /* Bajado ligeramente para equilibrar */
-  width:100%;
-  text-align:center;
-  font-size: clamp(22px, 5vw, 42px);
-  opacity:0;
-  filter:blur(6px);
-  transition:all 1.2s ease;
-  z-index: 20;
-  font-weight: 400;
+  position:absolute; top: 64vh; width:100%; text-align:center;
+  font-size: clamp(20px, 5vw, 40px); z-index: 20;
 }
-.text-bottom.show { opacity:1; filter:blur(0); }
 
-/* 5. BOADILLA Y PLANETA */
 .boadilla {
-  position:absolute;
-  bottom: 2vh;
-  left:50%;
-  transform:translateX(-50%);
-  text-align:center;
-  opacity:0;
-  filter:blur(6px);
-  transition:all 1.5s ease;
-  font-size: clamp(14px, 3vw, 20px);
-  z-index: 10;
-}
-.boadilla.show { opacity:1; filter:blur(0); }
-.planet img {
-  width: 22vw;
-  max-width: 130px;
-  margin-bottom: 0.5vh;
+  position:absolute; bottom: 8vh; left:50%; transform:translateX(-50%);
+  text-align:center; opacity:0; transition: opacity 1s;
+  font-size: clamp(14px, 3vw, 20px); z-index: 10; width: 100%;
 }
 
-/* CURSOR */
 .cursor {
-  display:none;
-  width: clamp(12px, 2vw, 18px);
-  height: clamp(12px, 2vw, 18px);
-  background:#00e5ff;
-  margin-left:8px;
-  animation:blink 1s steps(1) infinite;
-  vertical-align: middle;
+  display:none; width: 10px; height: 1.5rem; background:#00e5ff;
+  margin-left:5px; animation:blink 1s steps(1) infinite; vertical-align: middle;
 }
 .cursor.visible { display: inline-block; }
 
-/* HAZ DE LUZ */
 .beam {
-  position:fixed;
-  bottom:0;
-  left:50%;
-  transform:translateX(-50%);
-  width:85vw;
-  height:65vh;
-  background:radial-gradient(ellipse at bottom,rgba(0,200,255,0.3),transparent 75%);
-  filter:blur(4vh);
-  opacity:0;
-  transition:opacity 1.2s ease;
-  z-index: 1;
+  position:fixed; bottom:-5vh; left:50%; transform:translateX(-50%);
+  width:90vw; height:70vh;
+  /* Color más intenso: de cyan puro a transparente */
+  background:radial-gradient(ellipse at bottom, rgba(0,229,255,0.6), transparent 70%);
+  filter:blur(5vh); opacity:0;
+  transition: opacity 4s ease-out; /* Intensificación lenta */
+  z-index: 1; pointer-events: none;
 }
-.beam.on { opacity:1; animation:beamPulse 2s ease-in-out infinite; }
+.beam.on { opacity:1; }
 
-/* ANIMACIONES */
 @keyframes rotateY { from { transform:rotateY(0deg); } to { transform:rotateY(360deg); } }
-@keyframes beamPulse {
-  0%, 100% { transform:translateX(-50%) scale(0.95); opacity: 0.4; }
-  50% { transform:translateX(-50%) scale(1.05); opacity: 0.6; }
-}
 @keyframes blink { 50% { opacity:0; } }
 
 </style>
@@ -208,24 +134,28 @@ img {
 
 <div class="scanlines"></div>
 
+<!-- Pantalla 1: Intro -->
 <div id="intro">
-  <div class="imperial">IMPERIAL TRANSMISSION</div>
-  <div class="touch">touch to confirm identity</div>
-  <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/880868.png">
+  <div class="imperial" id="introTitle" style="margin-bottom:2vh; font-size: clamp(24px, 5vw, 50px);"></div>
+  <div class="touch" id="introTouch" style="opacity:0.8; letter-spacing:0.3em; margin-bottom:4vh; font-size: clamp(10px, 2.5vw, 18px);"></div>
+  <img id="biometric-btn" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/880868.png" alt="Biometric Scanner" style="display:none;">
 </div>
 
+<!-- Pantalla 2: Loading -->
 <div id="loading" style="display:none;">
   <div class="spinner"></div>
-  <div style="margin-top:15px">verifying identity...</div>
+  <div id="loadingText"></div>
 </div>
 
-<div id="access" style="display:none;">ACCESS APPROVED</div>
+<!-- Pantalla 3: Access -->
+<div id="access" style="display:none;">
+  <div id="accessText" style="letter-spacing: 0.5em;"></div>
+</div>
 
 <div id="content">
-
   <div class="imperial-block">
     <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp">
-    <div>imperial communication</div>
+    <div id="impCommText"></div>
   </div>
 
   <div class="text-main">
@@ -234,11 +164,11 @@ img {
 
   <div class="scene">
     <div class="holo">
-      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/Sin%20t%C3%ADtulo3.png">
+      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/Sin%20t%C3%ADtulo3.png" style="width:100%; height:100%; object-fit:contain;">
     </div>
   </div>
 
-  <div class="text-bottom" id="bottomText">
+  <div class="text-bottom">
     <div id="names"></div>
     <div id="date"></div>
   </div>
@@ -247,83 +177,122 @@ img {
 
   <div class="boadilla" id="boadilla">
     <div class="planet">
-      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/background-with-geometric-linear-sphere.png">
+      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/background-with-geometric-linear-sphere.png" style="width:100px;">
     </div>
-    <div><span id="boadillaText"></span></div>
+    <div id="boadillaText"></div>
   </div>
-
 </div>
 
 <script>
-const intro = document.getElementById("intro");
-const loading = document.getElementById("loading");
-const access = document.getElementById("access");
-const content = document.getElementById("content");
-const cursor = document.getElementById("cursor");
-
-intro.onclick = () => {
-  intro.style.display="none";
-  loading.style.display="flex";
-
-  setTimeout(()=>{
-    loading.style.display="none";
-    access.style.display="flex";
-
-    setTimeout(()=>{
-      access.classList.add("fade");
-      setTimeout(()=>{
-        access.style.display="none";
-        start();
-      },1500);
-    },1200);
-  },1800);
-};
-
-function start(){
-  content.style.display="block";
-
-  setTimeout(()=>{
-    document.querySelector(".imperial-block").classList.add("show");
-  },800);
-
-  setTimeout(()=>{
-    cursor.classList.add("visible");
-    document.querySelector(".beam").classList.add("on");
-    setTimeout(()=>{
-      document.querySelector(".holo").classList.add("on");
-    },1200);
-  },2500);
-
-  setTimeout(typeText,4500);
-}
-
-function type(el, text, speed, callback){
+// Utilidad Typing
+function type(el, text, speed, callback) {
   let i = 0;
   el.textContent = "";
-  function t(){
-    if(i < text.length){
+  function t() {
+    if (i < text.length) {
       el.textContent += text[i++];
       setTimeout(t, speed);
-    } else if(callback) callback();
+    } else if (callback) callback();
   }
   t();
 }
 
-function typeText(){
-  type(mainText, "Save the date...", 70, () => {
-    setTimeout(()=>{
-      document.getElementById("bottomText").classList.add("show");
-      type(names, "Irene & Nacho", 60, ()=>{
-        setTimeout(()=>{
-          type(date, "15-05-2027", 60, () => {
-            setTimeout(()=>{
-              document.getElementById("boadilla").classList.add("show");
-              type(boadillaText, "BOADILLA", 80);
-            }, 500);
-          });
-        }, 200);
+// Typing especial para Save the Date con pausas entre palabras
+function typeSpecial(el, text, speed, callback) {
+  let words = text.split(" ");
+  let wordIndex = 0;
+  el.textContent = "";
+
+  function nextWord() {
+    if (wordIndex < words.length) {
+      let charIndex = 0;
+      let currentWord = words[wordIndex] + (wordIndex < words.length - 1 ? " " : "");
+      
+      function tChar() {
+        if (charIndex < currentWord.length) {
+          el.textContent += currentWord[charIndex++];
+          setTimeout(tChar, speed);
+        } else {
+          wordIndex++;
+          setTimeout(nextWord, 400); // Pausa ligera entre palabras
+        }
+      }
+      tChar();
+    } else if (callback) callback();
+  }
+  nextWord();
+}
+
+// --- Lógica de Inicio ---
+window.onload = () => {
+  type(document.getElementById("introTitle"), "IMPERIAL TRANSMISSION", 50, () => {
+    type(document.getElementById("introTouch"), "confirm identity to proceed", 40, () => {
+      document.getElementById("biometric-btn").style.display = "block";
+      document.getElementById("biometric-btn").classList.add("fade-in");
+    });
+  });
+};
+
+document.getElementById("biometric-btn").onclick = () => {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("loading").style.display = "flex";
+  
+  type(document.getElementById("loadingText"), "verifying identity...", 60, () => {
+    setTimeout(() => {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("access").style.display = "flex";
+      
+      type(document.getElementById("accessText"), "ACCESS APPROVED", 80, () => {
+        setTimeout(() => {
+          document.getElementById("access").style.transition = "all 1s";
+          document.getElementById("access").style.opacity = "0";
+          setTimeout(startMainScene, 1000);
+        }, 1000);
       });
-    }, 800);
+    }, 1000);
+  });
+};
+
+function startMainScene() {
+  document.getElementById("access").style.display = "none";
+  document.getElementById("content").style.display = "block";
+
+  // 1. Cabecera
+  setTimeout(() => {
+    document.querySelector(".imperial-block").classList.add("show");
+    type(document.getElementById("impCommText"), "imperial communication", 40, () => {
+      
+      // 2. Save the date (especial)
+      setTimeout(() => {
+        document.getElementById("cursor").classList.add("visible");
+        typeSpecial(document.getElementById("mainText"), "Save the date...", 100, () => {
+          
+          // 3. SECUENCIA: Haz de luz y LUEGO holograma
+          const beam = document.querySelector(".beam");
+          const holo = document.querySelector(".holo");
+          
+          beam.classList.add("on"); // El haz empieza a intensificarse (4s en CSS)
+          
+          setTimeout(() => {
+            holo.classList.add("on"); // El holograma aparece suavemente después
+            setTimeout(typeFinalInfo, 1500);
+          }, 2000); 
+        });
+      }, 800);
+    });
+  }, 500);
+}
+
+function typeFinalInfo() {
+  type(document.getElementById("names"), "Irene & Nacho", 60, () => {
+    setTimeout(() => {
+      type(document.getElementById("date"), "15.05.2027", 60, () => {
+        setTimeout(() => {
+          document.getElementById("boadilla").style.opacity = "1";
+          type(document.getElementById("boadillaText"), "BOADILLA", 100);
+        }, 600);
+      });
+    }, 500);
   });
 }
 </script>
