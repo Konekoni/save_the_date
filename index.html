@@ -1,301 +1,822 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Holograma Imperial</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Terminal Imperial Interactiva</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-<style>
-html, body {
-  margin:0;
-  height:100%;
-  background:black;
-  overflow:hidden;
-  font-family:'Orbitron', monospace;
-  color:#00e5ff;
-  color-scheme: dark;
-}
+    <style>
+        :root {
+            --cyan: #00e5ff;
+            --rebel-red: #ff4d4d;
+            --current-theme: var(--cyan);
+        }
 
-.scanlines {
-  position:fixed;
-  inset:0;
-  background:repeating-linear-gradient(
-    to bottom,
-    rgba(255,255,255,0.05) 0px,
-    rgba(255,255,255,0.05) 0.3vh,
-    transparent 0.3vh,
-    transparent 0.6vh
-  );
-  pointer-events:none;
-  z-index:99999;
-}
+        html, body {
+            margin: 0;
+            height: 100%;
+            background: black;
+            overflow: hidden;
+            font-family: 'Orbitron', monospace;
+            color: var(--current-theme);
+            color-scheme: dark;
+            transition: color 0.5s;
+        }
 
-img {
-  filter:
-    brightness(0) invert(1) sepia(1) saturate(12)
-    hue-rotate(165deg) brightness(0.9) contrast(1.15)
-    drop-shadow(0 0 1.5vh #00e5ff);
-  mix-blend-mode: screen;
-}
+        .rebel-mode {
+            --current-theme: var(--rebel-red);
+        }
 
-/* ===== PANTALLAS ===== */
-#intro, #loading, #access {
-  position:fixed;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  z-index:10000;
-  text-align:center;
-  background: black;
-}
+        .rebel-mode #mainText,
+        .rebel-mode #names,
+        .rebel-mode #date,
+        .rebel-mode #boadillaText,
+        .rebel-mode #impCommText,
+        .rebel-mode #loadingData {
+            color: var(--rebel-red) !important;
+        }
 
-#biometric-btn {
-    width: clamp(80px, 15vw, 140px);
-    cursor: pointer;
-    transition: transform 0.2s;
-    -webkit-tap-highlight-color: transparent;
-}
+        .rebel-mode #cursor {
+            background: var(--rebel-red) !important;
+        }
 
-.spinner {
-  width: clamp(35px, 8vw, 60px);
-  height: clamp(35px, 8vw, 60px);
-  border:2px solid rgba(0,229,255,0.2);
-  border-top:2px solid #00e5ff;
-  border-radius:50%;
-  animation: spin 1s linear infinite;
-  margin-bottom:15px;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
+        .rebel-mode .holo-filter {
+            filter:
+                brightness(0) invert(1) sepia(1) saturate(10)
+                hue-rotate(330deg) brightness(1.2) contrast(1.1)
+                drop-shadow(0 0 1.5vh var(--rebel-red));
+        }
 
-/* ===== CONTENIDO ===== */
-#content { display:none; height: 100vh; width: 100vw; position: relative; }
+        .rebel-mode .beam {
+            background: radial-gradient(ellipse at bottom, rgba(255,77,77,0.5), transparent 70%);
+        }
 
-.imperial-block {
-  position:absolute; top: 2vh; width: 100%; text-align:center;
-  opacity:0; transition: opacity 1s; font-size: clamp(10px, 1.5vw, 13px);
-  z-index: 20; letter-spacing: 0.2em;
-}
-.imperial-block.show { opacity:1; }
-.imperial-block img { width: clamp(30px, 4vh, 50px); margin-bottom:0.5vh; }
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+        }
 
-.text-main {
-  position:absolute; top: 13vh; width:100%; text-align:center;
-  font-size: clamp(28px, 6vw, 48px); z-index: 20;
-}
+        .scanlines {
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.05) 0px,
+                rgba(255,255,255,0.05) 0.3vh,
+                transparent 0.3vh,
+                transparent 0.6vh
+            );
+            pointer-events: none;
+            z-index: 99999;
+        }
 
-.scene {
-  position:absolute; top: 42vh; left: 50%;
-  transform: translate(-50%, -50%); perspective:1000px; z-index: 5;
-}
-.holo {
-  position:relative; width: 40vh; height: 40vh; transform-style:preserve-3d;
-  opacity:0; transition: opacity 3s ease-in; /* Aparición lenta tras el haz */
-}
-.holo.on { opacity:0.8; animation: rotateY 18s linear infinite; }
+        .holo-filter {
+            filter:
+                brightness(0) invert(1) sepia(1) saturate(12)
+                hue-rotate(165deg) brightness(0.9) contrast(1.15)
+                drop-shadow(0 0 1.5vh var(--cyan));
+            mix-blend-mode: screen;
+            transition: filter 0.5s;
+        }
 
-.text-bottom {
-  position:absolute; top: 64vh; width:100%; text-align:center;
-  font-size: clamp(20px, 5vw, 40px); z-index: 20;
-}
+        .ship-container {
+            position: absolute;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            width: 46%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 2s ease-in;
+        }
 
-.boadilla {
-  position:absolute; bottom: 12vh; left:50%; transform:translateX(-50%);
-  text-align:center; opacity:0; transition: opacity 1s;
-  font-size: clamp(14px, 3vw, 20px); z-index: 15; width: 100%;
-}
+        .ship-deco {
+            width: clamp(30px, 8vw, 60px);
+            margin-right: 6px;
+            margin-bottom: 0px;
+        }
 
-.cursor {
-  display:none; width: 10px; height: 1.5rem; background:#00e5ff;
-  margin-left:5px; animation:blink 1s steps(1) infinite; vertical-align: middle;
-}
-.cursor.visible { display: inline-block; }
+        .ship-data {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(5px, 1.8vw, 7px);
+            line-height: 1.2;
+            text-transform: uppercase;
+            color: inherit;
+        
+            border-left: 1px solid currentColor;
+            padding-left: 6px;
+            margin-left: 0px;
+        
+            opacity: 0.85;
+        
+            white-space: pre;
+            text-align: left;
+        }
 
-.beam {
-  position:fixed; bottom:-5vh; left:50%; transform:translateX(-50%);
-  width:90vw; height:70vh;
-  /* Color más intenso: de cyan puro a transparente */
-  background:radial-gradient(ellipse at bottom, rgba(0,229,255,0.6), transparent 70%);
-  filter:blur(5vh); opacity:0;
-  transition: opacity 4s ease-out; /* Intensificación lenta */
-  z-index: 1; pointer-events: none;
-}
-.beam.on { opacity:1; }
+        .pos-1 { top: 2%; left: 2%; justify-content: flex-start; }
+        .pos-2 { top: 2%; right: 2%; justify-content: flex-end; }
+        .pos-3 { bottom: 2%; left: 2%; justify-content: flex-start; }
+        .pos-4 { bottom: 2%; right: 2%; justify-content: flex-end; }
+        
 
-@keyframes rotateY { from { transform:rotateY(0deg); } to { transform:rotateY(360deg); } }
-@keyframes blink { 50% { opacity:0; } }
+        #intro, #loading, #access {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            background: black;
+        }
+        
+        #accessText {
+            color: #00ff7f;
+            font-size: 24px;
+            letter-spacing: 0.4em;
+            text-align: center;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+        
+        #accessText.terminal-message {
+            opacity: 1;
+            transform: scale(1);
+            border: 1px solid rgba(0, 255, 127, 0.6);
+            padding: 14px 22px;
+            background: rgba(0, 255, 127, 0.06);
+            box-shadow: 0 0 15px rgba(0, 255, 127, 0.25);
+        }
 
-</style>
+        .fixed-layout-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 350px;
+            justify-content: flex-start;
+        }
+
+        #intro-logo {
+            width: 60px;
+            margin-bottom: 20px;
+        }
+
+        .loading-holo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+            transform: scale(1.1);
+        }
+
+        #loadingShip {
+            width: 120px;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+
+        .loading-text-block {
+                text-align: center;
+                font-family: 'Share Tech Mono', monospace;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 40px;
+        }
+        
+        #loadingText {
+            margin-bottom: 30px;
+            font-size: 12px;
+            letter-spacing: 0.2em;
+            opacity: 0.85;
+            min-height: 20px;
+            position: relative;
+            top: -10px; /* sube ligeramente el mensaje */
+        }
+
+        .imperial-block {
+            position: absolute; top: 15vh; width: 100%; text-align: center;
+            opacity: 0; transition: opacity 1s; font-size: 11px;
+            z-index: 200; letter-spacing: 0.2em;
+            cursor: pointer;
+        }
+        .imperial-block.show { opacity: 1; }
+        .imperial-block img { width: 35px; margin-bottom: 0.5vh; }
+
+        #signal-noise {
+            position: fixed;
+            inset: 0;
+            background: rgba(255,255,255,0.1);
+            display: none;
+            z-index: 100000;
+            pointer-events: none;
+        }
+
+        .noise-active #signal-noise {
+            display: block;
+            animation: noise-anim 0.1s infinite;
+        }
+
+        @keyframes noise-anim {
+            0% { transform: translateX(-5px); opacity: 0.5; }
+            50% { transform: translateX(5px); opacity: 0.8; }
+            100% { transform: translateY(2px); opacity: 0.5; }
+        }
+
+        .text-main {
+            position: absolute; top: 24vh; width: 100%; text-align: center;
+            font-size: clamp(28px, 6vw, 48px); z-index: 20;
+        }
+
+        .scene {
+            position: absolute; top: 45vh; left: 50%;
+            transform: translate(-50%, -50%); perspective: 1000px; z-index: 5;
+        }
+        .holo {
+            position: relative; width: 28vh; height: 28vh; transform-style: preserve-3d;
+            opacity: 0; transition: opacity 3s ease-in;
+        }
+        .holo.on { opacity: 0.8; animation: rotateY 18s linear infinite; }
+
+        @keyframes rotateY { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+
+        .text-bottom {
+            position: absolute; top: 62vh; width: 100%; text-align: center;
+            font-size: clamp(20px, 5vw, 40px); z-index: 20;
+        }
+
+        .boadilla {
+            position: absolute; bottom: 14vh; left: 50%; transform: translateX(-50%);
+            text-align: center; opacity: 0; transition: opacity 1s;
+            font-size: clamp(14px, 3vw, 20px); z-index: 10; width: 100%;
+            cursor: pointer;
+        }
+
+        .beam {
+            position: fixed; bottom: 5vh; left: 50%; transform: translateX(-50%);
+            width: 80vw; height: 50vh;
+            background: radial-gradient(ellipse at bottom, rgba(0,229,255,0.5), transparent 70%);
+            filter: blur(5vh); opacity: 0;
+            transition: opacity 4s ease-out;
+            z-index: 1; pointer-events: none;
+        }
+
+        #biometric-btn { width: 100px; cursor: pointer; animation: pulse 2s infinite; margin-top: 20px;}
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+
+        #cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: var(--cyan);
+            margin-left: 5px;
+            animation: blink 1s steps(1) infinite;
+            vertical-align: middle;
+        }
+        
+        #telemetryStream {
+            margin-top: 10px;
+            width: 320px;
+            height: 220px;
+            overflow: hidden;
+            text-align: left;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            line-height: 1.25;
+            border-left: 2px solid currentColor;
+            padding-left: 10px;
+            opacity: 0.85;
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
 </head>
 <body>
 
-<div class="scanlines"></div>
+    <canvas id="starfield"></canvas>
+    <div class="scanlines"></div>
+    <div id="signal-noise"></div>
 
-<!-- Pantalla 1: Intro -->
-<div id="intro">
-  <div class="imperial" id="introTitle" style="margin-bottom:2vh; font-size: clamp(24px, 5vw, 50px);"></div>
-  <div class="touch" id="introTouch" style="opacity:0.8; letter-spacing:0.3em; margin-bottom:4vh; font-size: clamp(10px, 2.5vw, 18px);"></div>
-  <img id="biometric-btn" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/880868.png" alt="Biometric Scanner" style="display:none;">
-</div>
-
-<!-- Pantalla 2: Loading -->
-<div id="loading" style="display:none;">
-  <div class="spinner"></div>
-  <div id="loadingText"></div>
-</div>
-
-<!-- Pantalla 3: Access -->
-<div id="access" style="display:none;">
-  <div id="accessText" style="letter-spacing: 0.5em;"></div>
-</div>
-
-<div id="content">
-  <div class="imperial-block">
-    <img src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp">
-    <div id="impCommText"></div>
-  </div>
-
-  <div class="text-main">
-    <span id="mainText"></span><span class="cursor" id="cursor"></span>
-  </div>
-
-  <div class="scene">
-    <div class="holo">
-      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/Sin%20t%C3%ADtulo3.png" style="width:100%; height:100%; object-fit:contain;">
+    <!-- Pantalla Inicial -->
+    <div id="intro">
+        <div class="fixed-layout-container">
+            <img id="intro-logo" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp" class="holo-filter">
+            <div id="introTitle" style="margin-bottom:2vh; font-size: clamp(20px, 5vw, 32px); height: 40px;"></div>
+            <div id="introTouch" style="opacity:0.6; letter-spacing:0.3em; margin-bottom:4vh; font-size: 12px; height: 20px;"></div>
+            <div style="height: 120px; display: flex; align-items: center; justify-content: center;">
+                <img id="biometric-btn" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/880868.png" alt="Scanner" style="display:none;" class="holo-filter">
+            </div>
+        </div>
     </div>
-  </div>
 
-  <div class="text-bottom">
-    <div id="names"></div>
-    <div id="date"></div>
-  </div>
-
-  <div class="beam"></div>
-
-  <div class="boadilla" id="boadilla">
-    <div class="planet">
-      <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/background-with-geometric-linear-sphere.png" style="width:100px;">
+    <!-- Pantalla de Carga -->
+    <div id="loading" style="display:none;">
+        <div class="loading-holo-container">
+            <img id="loadingShip" src="https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/nave-espacial-10.gif" class="holo-filter">
+            <div class="loading-text-block">
+                <div id="loadingText"
+                    style="letter-spacing: 0.2em; font-size: 11px; margin-bottom: 10px; opacity: 0.8; max-width: 300px;">
+                </div>
+            
+                <div id="telemetryStream"></div>
+            </div>
+        </div>
     </div>
-    <div id="boadillaText"></div>
-  </div>
-</div>
 
-<script>
-// Utilidad Typing
-function type(el, text, speed, callback) {
-  let i = 0;
-  el.textContent = "";
-  function t() {
-    if (i < text.length) {
-      el.textContent += text[i++];
-      setTimeout(t, speed);
-    } else if (callback) callback();
-  }
-  t();
-}
+    <!-- Pantalla de Acceso -->
+    <div id="access" style="display:none;">
+        <div id="accessText" style="letter-spacing: 0.5em; font-size: 24px;"></div>
+    </div>
+    
 
-// Typing especial para Save the Date con pausas entre palabras
-function typeSpecial(el, text, speed, callback) {
-  let words = text.split(" ");
-  let wordIndex = 0;
-  el.textContent = "";
+    <div id="content" style="display:none;">
+        <div class="ship-container pos-1">
+            <img class="ship-deco holo-filter">
+            <div class="ship-data" id="data-1"></div>
+        </div>
+        
+        <div class="ship-container pos-2">
+            <img class="ship-deco holo-filter">
+            <div class="ship-data" id="data-2"></div>
+        </div>
 
-  function nextWord() {
-    if (wordIndex < words.length) {
-      let charIndex = 0;
-      let currentWord = words[wordIndex] + (wordIndex < words.length - 1 ? " " : "");
-      
-      function tChar() {
-        if (charIndex < currentWord.length) {
-          el.textContent += currentWord[charIndex++];
-          setTimeout(tChar, speed);
-        } else {
-          wordIndex++;
-          setTimeout(nextWord, 400); // Pausa ligera entre palabras
+        <div class="ship-container pos-3">
+            <img class="ship-deco holo-filter">
+            <div class="ship-data" id="data-3"></div>
+        </div>
+
+        <div class="ship-container pos-4">
+            <img class="ship-deco holo-filter">
+            <div class="ship-data" id="data-4"></div>
+        </div>
+
+        <div class="imperial-block" onclick="triggerHack()">
+            <img id="main-logo" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp" class="holo-filter">
+            <div id="impCommText"></div>
+        </div>
+
+        <div class="text-main">
+            <span id="mainText"></span><span id="cursor" style="display:none;"></span>
+        </div>
+
+        <div class="scene">
+            <div class="holo">
+                <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/Sin%20t%C3%ADtulo3.png" style="width:100%; height:100%; object-fit:contain;" class="holo-filter">
+            </div>
+        </div>
+
+        <div class="text-bottom">
+            <div id="names"></div>
+            <div id="date" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="beam"></div>
+
+        <div class="boadilla" id="boadilla" onclick="triggerWarp()">
+            <div class="planet">
+                <img src="https://uploads.onecompiler.io/44nfcewhu/44nfd75r4/background-with-geometric-linear-sphere.png" style="width:80px;" class="holo-filter">
+            </div>
+            <div id="boadillaText"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+        let warpState = "IDLE"; 
+        let warpFactor = 0;
+        let warpLength = 1;
+
+        function initStars() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            stars = [];
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            
+            for (let i = 0; i < 500; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const dist = Math.random() * Math.max(canvas.width, canvas.height);
+                stars.push({
+                    x: centerX + Math.cos(angle) * dist,
+                    y: centerY + Math.sin(angle) * dist,
+                    size: Math.random() * 1.5 + 0.5,
+                    speed: Math.random() * 0.1 + 0.05,
+                    opacity: Math.random() * 0.5 + 0.5
+                });
+            }
         }
+
+        function drawStars() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+
+            stars.forEach(star => {
+                const dx = star.x - centerX;
+                const dy = star.y - centerY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const angle = Math.atan2(dy, dx);
+
+                if (warpState !== "IDLE") {
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                    ctx.lineWidth = star.size;
+                    ctx.beginPath();
+                    ctx.moveTo(star.x, star.y);
+                    
+                    const trailX = star.x + Math.cos(angle) * warpLength * (dist/100);
+                    const trailY = star.y + Math.sin(angle) * warpLength * (dist/100);
+                    ctx.lineTo(trailX, trailY);
+                    ctx.stroke();
+
+                    star.x += Math.cos(angle) * warpFactor * (dist/100 + 1);
+                    star.y += Math.sin(angle) * warpFactor * (dist/100 + 1);
+
+                    if (star.x < -300 || star.x > canvas.width + 300 || star.y < -300 || star.y > canvas.height + 300) {
+                        const spawnAngle = Math.random() * Math.PI * 2;
+                        const spawnDist = 5 + Math.random() * 20;
+                        star.x = centerX + Math.cos(spawnAngle) * spawnDist;
+                        star.y = centerY + Math.sin(spawnAngle) * spawnDist;
+                    }
+                } else {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    star.y += star.speed;
+                    if (star.y > canvas.height) star.y = -5;
+                }
+            });
+
+            if (warpState === "STRETCHING") {
+                warpFactor += 0.4;
+                warpLength += 3.0;
+                if (warpFactor >= 20) warpState = "JUMPING";
+            } else if (warpState === "BRAKING") {
+                warpFactor *= 0.85; 
+                warpLength *= 0.82; 
+                if (warpLength < 1.2) {
+                    warpFactor = 0;
+                    warpLength = 1;
+                    warpState = "IDLE";
+                }
+            }
+
+            requestAnimationFrame(drawStars);
+        }
+
+        function triggerWarp() {
+            if (warpState !== "IDLE") return;
+            warpState = "STRETCHING";
+            setTimeout(() => {
+                warpState = "BRAKING";
+            }, 2200); 
+        }
+
+        function triggerHack() {
+            updateShipData();
+            document.body.classList.add('noise-active');
+            setTimeout(() => {
+                document.body.classList.remove('noise-active');
+                const isRebel = document.body.classList.toggle('rebel-mode');
+                const logo = document.getElementById('main-logo');
+                const text = document.getElementById('impCommText');
+                
+                if (isRebel) {
+                    logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/Rebel_Alliance_logo.svg.png";
+                    text.textContent = "REBEL INTERFERENCE IN NETWORK";
+                } else {
+                    logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp";
+                    text.textContent = "IMPERIAL COMMUNICATION SYSTEM";
+                }
+            }, 500);
+        }
+        
+      const shipGifs = [
+          "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/nave-espacial-9.gif",
+          "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/nave-espacial-10.gif",
+          "https://uploads.onecompiler.io/44nfcewhu/44nkt6qmh/nave-espacial-14.gif",
+          "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/nave-espacial-17.gif",
+          "https://uploads.onecompiler.io/44nfcewhu/44nkt6qmh/nave-espacial-18.gif",
+          "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/nave-espacial-19.gif"
+      ];
+      
+      function pickRandomShips() {
+          return [...shipGifs]
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 4);
       }
-      tChar();
-    } else if (callback) callback();
-  }
-  nextWord();
-}
 
-// --- Lógica de Inicio ---
-window.onload = () => {
-  type(document.getElementById("introTitle"), "IMPERIAL TRANSMISSION", 50, () => {
-    type(document.getElementById("introTouch"), "confirm identity to proceed", 40, () => {
-      document.getElementById("biometric-btn").style.display = "block";
-      document.getElementById("biometric-btn").classList.add("fade-in");
-    });
-  });
-};
-
-document.getElementById("biometric-btn").onclick = () => {
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("loading").style.display = "flex";
-  
-  type(document.getElementById("loadingText"), "verifying identity...", 60, () => {
-    setTimeout(() => {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("access").style.display = "flex";
+      const destinations = [
+          "CORUSCANT",
+          "NABOO",
+          "SCARIF",
+          "TATOOINE"
+      ];
       
-      type(document.getElementById("accessText"), "ACCESS GRANTED", 80, () => {
-        setTimeout(() => {
-          document.getElementById("access").style.transition = "all 1s";
-          document.getElementById("access").style.opacity = "0";
-          setTimeout(startMainScene, 1000);
-        }, 1000);
-      });
-    }, 1000);
-  });
-};
-
-function startMainScene() {
-  document.getElementById("access").style.display = "none";
-  document.getElementById("content").style.display = "block";
-
-  // 1. Cabecera
-  setTimeout(() => {
-    document.querySelector(".imperial-block").classList.add("show");
-    type(document.getElementById("impCommText"), "imperial communication", 40, () => {
+      const missions = [
+          "PATROL",
+          "ESCORT",
+          "RECON",
+          "SURVEILLANCE"
+      ];
       
-      // 2. Save the date (especial)
-      setTimeout(() => {
-        document.getElementById("cursor").classList.add("visible");
-        typeSpecial(document.getElementById("mainText"), "Save the date...", 100, () => {
-          
-          // 3. SECUENCIA: Haz de luz y LUEGO holograma
-          const beam = document.querySelector(".beam");
-          const holo = document.querySelector(".holo");
-          
-          beam.classList.add("on"); // El haz empieza a intensificarse (4s en CSS)
-          
-          setTimeout(() => {
-            holo.classList.add("on"); // El holograma aparece suavemente después
-            setTimeout(typeFinalInfo, 1500);
-          }, 2000); 
-        });
-      }, 800);
-    });
-  }, 500);
-}
+      const shipSpecs = [
+          {
+              id: "TIE/X1-77",
+              class: "TIE INTERCEPTOR",
+              mission: "ESCORT DETAIL",
+              destination: "CORUSCANT"
+          },
+          {
+              id: "SCT-V9",
+              class: "RECON SCOUT",
+              mission: "RECON SWEEP",
+              destination: "NABOO"
+          },
+          {
+              id: "FRG-C1",
+              class: "SUPPLY FRIGATE",
+              mission: "SURVEILLANCE",
+              destination: "TATOOINE"
+          },
+          {
+              id: "CRU-H1",
+              class: "HEAVY CRUISER",
+              mission: "SECTOR PATROL",
+              destination: "SCARIF"
+          }
+      ];
+      
+      const shipRuntimeData = shipSpecs.map(spec => ({
+          shield: rand(82, 100),
+          velocity: rand(40, 120),
+          coordX: rand(10, 99) + rand(0, 99) / 100,
+          coordY: rand(10, 99) + rand(0, 99) / 100
+      }));
+      
+      
+      function rand(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      
+      function pick(arr) {
+          return arr[Math.floor(Math.random() * arr.length)];
+      }
+      
+      function generateCoordinates() {
+          return `${rand(12,99)}.${rand(100,999)} : ${rand(12,99)}.${rand(100,999)}`;
+      }
+      
+      function fluctuate(value, min, max, delta = 1) {
+      
+          value += (Math.random() * delta * 2) - delta;
+      
+          if (value < min) value = min;
+          if (value > max) value = max;
+      
+          return value;
+      }
+      
+      function generateShipTelemetry(spec, runtime) {
+      
+          const rebelMode = document.body.classList.contains("rebel-mode");
+      
+          if (rebelMode) {
+      
+              return `ID:          ${spec.id}
+CLASS:       ${spec.class}
+MISSION:     SIGNAL LOST
+DESTINATION: UNKNOWN
+SHIELD:      OFFLINE
+VELOCITY:    0000 MGLT
+COORD:       SIGNAL LOST`;
+          }
+      
+          runtime.shield = fluctuate(runtime.shield, 72, 100, 0.4);
+          runtime.velocity = fluctuate(runtime.velocity, 20, 120, 1.2);
+          runtime.coordX = fluctuate(runtime.coordX, 10, 99, 0.03);
+          runtime.coordY = fluctuate(runtime.coordY, 10, 99, 0.03);
+      
+          return `ID:          ${spec.id}
+CLASS:       ${spec.class}
+MISSION:     ${spec.mission}
+DESTINATION: ${spec.destination}
+SHIELD:      ${Math.round(runtime.shield)}%
+VELOCITY:    ${Math.round(runtime.velocity)} MGLT
+COORD:       [${runtime.coordX.toFixed(2)}, ${runtime.coordY.toFixed(2)}]`;
+      }
+      
+      function updateShipData() {
+      
+          for (let i = 1; i <= 4; i++) {
+      
+              const el = document.getElementById(`data-${i}`);
+      
+              if (!el) continue;
+      
+              el.textContent = generateShipTelemetry(
+                  shipSpecs[i - 1],
+                  shipRuntimeData[i - 1]
+              );
+          }
+      }
 
-function typeFinalInfo() {
-  type(document.getElementById("names"), "Irene & Nacho", 60, () => {
-    setTimeout(() => {
-      type(document.getElementById("date"), "15.05.2027", 60, () => {
-        setTimeout(() => {
-          document.getElementById("boadilla").style.opacity = "1";
-          type(document.getElementById("boadillaText"), "BOADILLA", 100);
-        }, 600);
-      });
-    }, 500);
-  });
-}
-</script>
+      
+        
+        const telemetryTemplates = [
+        `VESSEL ID ............. ISD-${Math.floor(Math.random()*999)}
+        REACTOR OUTPUT ........ ${rand(82, 100)}%
+        SHIELD INTEGRITY ...... ${rand(70, 100)}%
+        HYPERDRIVE STATUS ..... ${pick(["ONLINE", "CHARGING", "STANDBY"])}
+        THREAT ANALYSIS ....... ${pick(["LOW", "MODERATE", "SEVERE"])}
+        CURRENT VELOCITY ...... ${rand(1200, 9800)} km/s`,
+        
+        `SCANNING NEARBY VESSELS...
+        REBEL SIGNATURES ...... ${rand(0,5)}
+        COMM INTERFERENCE ..... ${rand(0,100)}%
+        TARGET LOCK ........... ${pick(["CONFIRMED", "SEARCHING", "PENDING"])}
+        SCAN RESOLUTION ....... ${rand(80,100)}%
+        PROXIMITY ALERT ....... ${pick(["CLEAR", "WARNING", "CRITICAL"])}`,
+        
+        `POWER GRID LOAD ....... ${rand(400,900)} MW
+        THERMAL LEVELS ......... ${rand(40,95)}°C
+        FUEL RESERVES .......... ${rand(60,100)}%
+        LIFE SUPPORT ........... NOMINAL
+        NEXT JUMP WINDOW ....... ${rand(5,90)} sec
+        GRAVITY WELL ALERT ..... ${pick(["NONE", "MINOR", "DETECTED"])}`,
+        
+        `STORMTROOPER LEGIONS .. ${rand(1200,5000)} READY
+        TIE SQUADRONS ......... ${rand(6,24)} ACTIVE
+        MEDICAL UNITS ......... OPERATIONAL
+        TACTICAL UPLINK ....... SYNCHRONIZED
+        IMPERIAL NETWORK ...... STABLE
+        AWAITING AUTHORIZATION...`,
+        
+        `SYSTEM ALERT:
+        > ${pick([
+        "Minor reactor fluctuation detected",
+        "Encrypted rebel signal intercepted",
+        "Navigation beacon recalibrated",
+        "Thermal spike normalized",
+        "Sector patrol route updated",
+        "Communications relay stabilized"
+        ])}`
+        ];
+        
+        function rand(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        function pick(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+        
+        let telemetryInterval;
+        
+        function startTelemetryStream() {
+            const stream = document.getElementById("telemetryStream");
+        
+            telemetryInterval = setInterval(() => {
+                const block = telemetryTemplates[
+                    Math.floor(Math.random() * telemetryTemplates.length)
+                ];
+        
+                stream.innerHTML += block + "\n\n";
+        
+                while (stream.innerHTML.length > 6000) {
+                    stream.innerHTML = stream.innerHTML.slice(1500);
+                }
+        
+                stream.scrollTop = stream.scrollHeight;
+            }, 180);
+        }
+        
+        function stopTelemetryStream() {
+            clearInterval(telemetryInterval);
+        }
 
+        function type(el, text, speed, callback) {
+            let i = 0; el.textContent = "";
+            function t() {
+                if (i < text.length) { el.textContent += text[i++]; setTimeout(t, speed); }
+                else if (callback) callback();
+            }
+            t();
+        }
+
+        window.onload = () => {
+            initStars();
+            drawStars();
+            setInterval(updateShipData, 120);
+            
+            type(document.getElementById("introTitle"), "IMPERIAL TRANSMISSION", 50, () => {
+                type(document.getElementById("introTouch"), "confirm identity to proceed", 40, () => {
+                    document.getElementById("biometric-btn").style.display = "block";
+                });
+            });
+        };
+
+        document.getElementById("biometric-btn").onclick = () => {
+            const intro = document.getElementById("intro");
+            const loading = document.getElementById("loading");
+            
+            intro.style.display = "none";
+            loading.style.display = "flex";
+            
+            const loadingShip = document.getElementById("loadingShip");
+            loadingShip.src = pick(shipGifs);
+            
+            startTelemetryStream();
+
+            
+            type(loadingText, "SCANNING SHIP SIGNATURE...", 35, () => {
+                setTimeout(() => {
+                    loadingText.textContent = "";
+                    type(loadingText, "VERIFYING IMPERIAL CLEARANCE...", 35, () => {
+                        setTimeout(() => {
+                            loading.style.display = "none";
+                            stopTelemetryStream();
+            
+                            const access = document.getElementById("access");
+            
+                            access.style.display = "flex";
+            
+                            const accessText = document.getElementById("accessText");
+                            
+                            accessText.textContent = "ACCESS GRANTED";
+                            
+                            accessText.classList.add("terminal-message");
+                            
+                            setTimeout(() => {
+                                access.style.opacity = "0";
+                                setTimeout(startMainScene, 800);
+                            }, 1200);
+                        }, 1200);
+                    });
+                }, 600);
+            });
+        };
+
+        function startMainScene() {
+            document.getElementById("access").style.display = "none";
+            document.getElementById("content").style.display = "block";
+            
+            document.querySelectorAll('.ship-container').forEach((c, idx) => {
+                setTimeout(() => c.style.opacity = "1", idx * 300);
+            });
+            
+            const selectedShips = pickRandomShips();
+
+            document.querySelectorAll('.ship-container img').forEach((img, i) => {
+                img.src = selectedShips[i];
+            });
+
+            setTimeout(() => {
+                document.querySelector(".imperial-block").classList.add("show");
+                type(document.getElementById("impCommText"), "IMPERIAL COMUNICATION SYSTEM", 40, () => {
+                    setTimeout(() => {
+                        document.getElementById("cursor").style.display = "inline-block";
+                        type(document.getElementById("mainText"), "Save the date...", 80, () => {
+                            document.querySelector(".beam").classList.add("on");
+                            setTimeout(() => {
+                                document.querySelector(".holo").classList.add("on");
+                                setTimeout(typeFinalInfo, 1000);
+                            }, 1500); 
+                        });
+                    }, 500);
+                });
+            }, 500);
+        }
+
+        function typeFinalInfo() {
+            type(document.getElementById("names"), "Irene & Nacho", 60, () => {
+                setTimeout(() => {
+                    type(document.getElementById("date"), "15.05.2027", 60, () => {
+                        setTimeout(() => {
+                            document.getElementById("boadilla").style.opacity = "1";
+                            type(document.getElementById("boadillaText"), "BOADILLA", 80);
+                        }, 600);
+                    });
+                }, 400);
+            });
+        }
+
+        window.onresize = initStars;
+    </script>
 </body>
 </html>
