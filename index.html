@@ -30,6 +30,31 @@
         .rebel-mode {
             --current-theme: var(--rebel-red);
         }
+        
+        /* Botón de Salto Global (Siempre activo) */
+        #skip-all {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            z-index: 999999; /* Por encima de TODO */
+            cursor: pointer;
+            opacity: 0.03; /* Prácticamente invisible */
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none;
+        }
+        
+        #skip-all:active {
+            opacity: 0.2;
+            background: rgba(255,255,255,0.1);
+        }
 
         /* Estilos de Intro Centralizados */
         #introTitle {
@@ -560,6 +585,9 @@
     <canvas id="starfield"></canvas>
     <div class="scanlines"></div>
     <div id="signal-noise"></div>
+    
+    <!-- BOTÓN DE SALTO OCULTO --> 
+    <button id="skip-all" onclick="skipToFinalScene()">.</button> 
 
     <div id="intro">
         <div class="secret-barcode barcode-top">Has encontrado los planos secretos. Por favor no se los des a los Rebeldes.</div>
@@ -617,7 +645,7 @@
 
         <div class="imperial-block" onclick="triggerHack()">
             <img id="main-logo" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp" class="holo-filter">
-            <div id="impCommText"></div>
+            <div id="impCommText">IMPERIAL COMMUNICATION SYSTEM</div>
         </div>
         
         <!-- HUD Izquierdo: Countdown -->
@@ -864,7 +892,7 @@
             return Math.max(min, Math.min(max, value));
         }
 
-        function triggerGlitchSlice(intensity = 5, duration = 200, color=null) {
+        function triggerGlitchSlice(intensity = 5, duration = 200) {
             const body = document.body;
             for(let i=0; i<intensity; i++) {
                 const slice = document.createElement('div');
@@ -989,6 +1017,57 @@
                 });
             });
         };
+        
+                // FUNCIÓN PARA SALTAR DIRECTAMENTE AL FINAL
+        function skipToFinalScene() {
+            // Detener posibles intervalos de carga
+            clearInterval(telemetryInterval);
+            
+            // Ocultar todas las pantallas previas
+            document.getElementById("intro").style.display = "none";
+            document.getElementById("loading").style.display = "none";
+            document.getElementById("access").style.display = "none";
+            document.getElementById("skip-all").style.display = "none";
+            
+            // Mostrar contenido principal
+            document.getElementById("content").style.display = "block";
+            
+            // Simular asignación de naves aleatorias si no se forzó nada
+            if (chosenShipIndex === -1) chosenShipIndex = 0;
+            
+            // Configurar escena final inmediatamente
+            setupFinalContent();
+            
+            // Mostrar elementos de la escena de forma inmediata (sin transiciones lentas)
+            document.querySelectorAll('.ship-container').forEach(c => c.style.opacity = "1");
+            document.querySelector(".imperial-block").classList.add("show");
+            document.querySelector(".beam").classList.add("on");
+            document.querySelector(".holo").classList.add("on");
+            document.getElementById("cursor").style.display = "inline-block";
+            
+            // Poner textos finales directamente
+            document.getElementById("mainText").textContent = "Save the date...";
+            document.getElementById("names").textContent = "Irene & Nacho";
+            document.getElementById("date").textContent = "01.05.2027";
+            document.getElementById("boadilla").style.opacity = "1";
+            document.getElementById("boadillaText").textContent = "BOADILLA";
+        }
+
+        function setupFinalContent() {
+            const remainingShips = shipGifs.filter((_, index) => index !== chosenShipIndex);
+            const shipsMenuUrls = [...remainingShips].sort(() => 0.5 - Math.random()).slice(0, 4);
+            
+            document.querySelectorAll('.ship-container img').forEach((img, i) => {
+                const url = shipsMenuUrls[i];
+                img.src = url;
+                const meta = getSpecsByUrl(url);
+                shipSpecs[i] = {
+                    ...meta,
+                    mission: pick(["ESCORT DETAIL", "RECON SWEEP", "SECTOR PATROL", "SURVEILLANCE"]),
+                    destination: pick(["CORUSCANT", "NABOO", "TATOOINE", "SCARIF", "HOTH"])
+                };
+            });
+        }
 
         document.getElementById("security-scan-btn").onclick = () => {
             document.getElementById("intro").style.display = "none";
@@ -1039,36 +1118,9 @@
         function startMainScene() {
             document.getElementById("content").style.display = "block";
             document.querySelectorAll('.ship-container').forEach(c => c.style.opacity = "1");
+            document.getElementById("skip-all").style.display = "none"; // Ocultar skip si ya empezó
             
-            // --- REGLA DE EXCLUSIÓN Y ASIGNACIÓN DE DATOS ---
-            const remainingShips = shipGifs.filter((_, index) => index !== chosenShipIndex);
-            const shipsMenuUrls = [...remainingShips].sort(() => 0.5 - Math.random()).slice(0, 4);
-            
-            // Actualizamos tanto la imagen como los specs vinculados
-            document.querySelectorAll('.ship-container img').forEach((img, i) => {
-                const url = shipsMenuUrls[i];
-                img.src = url;
-        
-                // Vinculamos metadata técnica real
-                const meta = getSpecsByUrl(url);
-        
-                shipSpecs[i] = {
-                    ...meta,
-                    mission: pick([
-                        "ESCORT DETAIL",
-                        "RECON SWEEP",
-                        "SECTOR PATROL",
-                        "SURVEILLANCE"
-                    ]),
-                    destination: pick([
-                        "CORUSCANT",
-                        "NABOO",
-                        "TATOOINE",
-                        "SCARIF",
-                        "HOTH"
-                    ])
-                };
-            });
+            setupFinalContent();
         
             setTimeout(() => {
                 document.querySelector(".imperial-block").classList.add("show");
