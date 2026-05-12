@@ -119,7 +119,7 @@
             box-shadow: 0 0 10px rgba(255, 77, 77, 0.2);
         }
         
-        .rebel-mode #velocityHud {
+        .rebel-mode #velocityHud, .rebel-mode #countdownHud {
             border-color: rgba(255,77,77,0.4);
             box-shadow: 0 0 10px rgba(255,77,77,0.2);
         }
@@ -220,12 +220,10 @@
             height: 100%;
         }
         
-        #velocityHud {
+        
+        .hud-panel {
             position: absolute;
-            bottom: 13vh; /* Movido arriba del menú inferior/línea separadora */
-            right: 5%;    /* Posicionado a la derecha */
-            left: auto;
-            transform: none;
+            bottom: 13vh;
             font-family: 'Share Tech Mono', monospace;
             font-size: 11px;
             color: var(--current-theme);
@@ -238,21 +236,35 @@
             align-items: baseline;
             gap: 4px;
             white-space: nowrap;
+            width: 85px; /* Anchura fija igualada */
+            justify-content: flex-end;
         }
 
-        #vDigits {
+        #velocityHud {
+            right: 5%;
+            left: auto;
+        }
+
+        #countdownHud {
+            left: 5%;
+            right: auto;
+            width: 100px; /* Un poco más ancho para el tiempo largo */
+            justify-content: center;
+        }
+
+        #vDigits, #cDigits {
             display: inline-block;
-            width: 48px; 
-            text-align: right;
             font-variant-numeric: tabular-nums;
+            letter-spacing: 1px; 
         }
 
-        #vUnit {
+        #vUnit, #cUnit {
             font-size: 8px;
             opacity: 0.7;
+            margin-left: 2px; 
         }
 
-        #velocityHud.overload {
+        .overload {
             color: var(--rebel-red) !important;
             border-color: var(--rebel-red) !important;
             box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
@@ -608,7 +620,14 @@
             <div id="impCommText"></div>
         </div>
         
-        <div id="velocityHud">
+        <!-- HUD Izquierdo: Countdown -->
+        <div id="countdownHud" class="hud-panel">
+            <span id="cDigits">00:00:00:00</span>
+            <span id="cUnit"></span>
+        </div>
+
+        <!-- HUD Derecho: Velocity -->
+        <div id="velocityHud" class="hud-panel">
             <span id="vDigits">000000</span>
             <span id="vUnit">MGLT</span>
         </div>
@@ -676,6 +695,7 @@
         let lastHudUpdate = 0;
         const hudUpdateInterval = 20;
         
+        const targetDate = new Date("2027-05-01T12:00:00+02:00").getTime(); 
         
         let shipSpecs = [
             { id: "SCANNING", class: "..." },
@@ -765,17 +785,27 @@
                 
                 let visualVal = Math.round(displayedVelocity);
                 
-                if (warpState !== "IDLE" && visualVal > 150) {
-                    visualVal = Math.floor(visualVal / 5) * 5; 
-                }
+                if (warpState !== "IDLE" && visualVal > 150) visualVal = Math.floor(visualVal / 5) * 5; 
                 
                 vDigits.textContent = visualVal.toString().padStart(0, '0');
                 
-                if (visualVal >= 80000) {
-                    velocityHud.classList.add("overload");
+                if (visualVal >= 80000) velocityHud.classList.add("overload");
+                else velocityHud.classList.remove("overload");
+                
+                // Actualizar Countdown
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+                if (diff > 0) {
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                    const decs = Math.floor((diff % 1000) / 10);
+                    document.getElementById("cDigits").textContent = 
+                        `${hours.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}:${decs.toString().padStart(2,'0')}`;
                 } else {
-                    velocityHud.classList.remove("overload");
+                    document.getElementById("cDigits").textContent = "00:00:00:00";
                 }
+                
             }
 
             if (warpState === "STRETCHING") {
