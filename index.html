@@ -18,16 +18,77 @@
             margin: 0;
             height: 100%;
             background: black;
-            overflow: hidden;
+            overflow: auto;
+            overscroll-behavior-y: auto;
             font-family: 'Orbitron', monospace;
             color: var(--current-theme);
             color-scheme: dark;
             transition: color 0.5s;
-            user-select: text; /* Asegura que el texto sea seleccionable globalmente */
+            user-select: text;
         }
 
         .rebel-mode {
             --current-theme: var(--rebel-red);
+        }
+
+        /* Estilos de Intro Centralizados */
+        #introTitle {
+            margin-bottom: 2vh;
+            font-size: clamp(18px, 5vw, 32px);
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        #introTouch {
+            opacity: 0.6;
+            letter-spacing: 0.3em;
+            margin-bottom: 4vh;
+            font-size: clamp(10px, 3vw, 15px);
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        #security-scan-btn {
+            display: none;
+            background: transparent;
+            color: var(--current-theme);
+            border: 2px solid var(--current-theme);
+            padding: 15px 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+            animation: pulse 2s infinite;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        #security-scan-btn:hover {
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.5);
+        }
+
+        .rebel-mode #security-scan-btn {
+            border-color: var(--rebel-red);
+            color: var(--rebel-red);
+            box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
+        }
+
+        @keyframes pulse { 
+            0%, 100% { transform: scale(1); opacity: 0.8; } 
+            50% { transform: scale(1.05); opacity: 1; } 
         }
 
         .rebel-mode #mainText,
@@ -44,7 +105,7 @@
 
         .rebel-mode .holo-filter {
             filter:
-                brightness(0) invert(1) sepia(1) saturate(10)
+                brightness(0.6) invert(1) sepia(1) saturate(10)
                 hue-rotate(330deg) brightness(1.2) contrast(1.1)
                 drop-shadow(0 0 1.5vh var(--rebel-red));
         }
@@ -60,10 +121,7 @@
         
         .rebel-mode #velocityHud {
             border-color: rgba(255,77,77,0.4);
-        
-            box-shadow:
-                0 0 10px rgba(255,77,77,0.2),
-                inset 0 0 8px rgba(255,77,77,0.08);
+            box-shadow: 0 0 10px rgba(255,77,77,0.2);
         }
 
         .secret-barcode {
@@ -82,6 +140,7 @@
             padding: 10px 0 2px 0;
             color: var(--cyan);
             user-select: all;
+            white-space: nowrap; /* Asegura una sola línea aunque desborde */
         }
         
         .secret-barcode::before {
@@ -129,11 +188,17 @@
 
         .holo-filter {
             filter:
-                brightness(0) invert(1) sepia(1) saturate(12)
-                hue-rotate(165deg) brightness(0.9) contrast(1.15)
+                brightness(0.85)
+                contrast(1.5)
+                invert(1)
+                sepia(1)
+                saturate(11)
+                hue-rotate(165deg)
+                brightness(1.15)
+                contrast(1.1)
                 drop-shadow(0 0 1.5vh var(--cyan));
+        
             mix-blend-mode: screen;
-            transition: filter 0.5s;
         }
 
         .separator-line {
@@ -145,34 +210,58 @@
             z-index: 50;
             pointer-events: none;
         }
-        .sep-top { top: 12vh; }
-        .sep-bottom { bottom: 12vh; }
+        .sep-top { top: 11vh; }
+        .sep-bottom { bottom: 11vh; }
 
         #content {
             position: relative;
-            z-index: 500; /* Elevamos todo el contenido para que sea seleccionable */
+            z-index: 500;
             width: 100%;
             height: 100%;
         }
         
         #velocityHud {
-            position: fixed;
-            top: 14vh;
-            right: 4vw;
+            position: absolute;
+            bottom: 13vh; /* Movido arriba del menú inferior/línea separadora */
+            right: 5%;    /* Posicionado a la derecha */
+            left: auto;
+            transform: none;
             font-family: 'Share Tech Mono', monospace;
-            font-size: clamp(10px, 1.4vw, 16px);
+            font-size: 11px;
             color: var(--current-theme);
-            padding: 8px 12px;
-            border: 1px solid rgba(0,229,255,0.3);
-            background: rgba(0,0,0,0.35);
-            box-shadow:
-                0 0 10px rgba(0,229,255,0.15),
-                inset 0 0 8px rgba(0,229,255,0.08);
-            letter-spacing: 0.18em;
+            padding: 2px 8px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
+            background: rgba(0,0,0,0.6);
             z-index: 3000;
-            opacity: 0.85;
-            backdrop-filter: blur(2px);
             pointer-events: none;
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        #vDigits {
+            display: inline-block;
+            width: 48px; 
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #vUnit {
+            font-size: 8px;
+            opacity: 0.7;
+        }
+
+        #velocityHud.overload {
+            color: var(--rebel-red) !important;
+            border-color: var(--rebel-red) !important;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+            animation: warning-blink 0.3s infinite;
+        }
+
+        @keyframes warning-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
         }
 
         .ship-container {
@@ -180,7 +269,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-            width: 46%;
+            width: 60%; 
             opacity: 0;
             pointer-events: none;
             transition: opacity 1s ease-out;
@@ -188,26 +277,65 @@
         }
 
         .ship-deco {
-            width: clamp(25px, 7vw, 50px);
-            margin-right: 6px;
+            width: clamp(45px, 10vw, 95px); /* Tamaño del GIF aumentado significativamente */
+            margin-right: 10px;
+            flex-shrink: 0; /* Evita que el GIF se aplaste si hay mucho texto */
         }
 
         .ship-data {
             font-family: 'Share Tech Mono', monospace;
-            font-size: clamp(5px, 1.6vw, 6.5px);
-            line-height: 1.1;
+            font-size: clamp(6px, 2vw, 8px); /* Fuente más grande para mejor legibilidad */
+            line-height: 1.05;
             text-transform: uppercase;
             color: inherit;
             border-left: 1px solid currentColor;
-            padding-left: 5px;
+            border-right: 1px solid currentColor;
+            padding-right: 6px;
+            padding-left: 6px;
             opacity: 0.8;
             white-space: pre;
         }
 
-        .pos-1 { top: 2vh; left: 2%; justify-content: flex-start; }
-        .pos-2 { top: 2vh; right: 2%; justify-content: flex-end; }
-        .pos-3 { bottom: 2vh; left: 2%; justify-content: flex-start; }
-        .pos-4 { bottom: 2vh; right: 2%; justify-content: flex-end; }
+        .rebel-blink {
+            animation: warning-blink 0.5s step-end infinite;
+        }
+
+
+        .pos-1,
+        .pos-2 {
+            top: 0;
+            height: 11vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pos-3,
+        .pos-4 {
+            bottom: 0;
+            height: 11vh;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pos-1 {
+            left: 5%;
+            justify-content: flex-start;
+        }
+        
+        .pos-2 {
+            right: 5%;
+            justify-content: flex-end;
+        }
+        
+        .pos-3 {
+            left: 5%;
+            justify-content: flex-start;
+        }
+        
+        .pos-4 {
+            right: 5%;
+            justify-content: flex-end;
+        }
 
         #intro, #loading, #access {
             position: fixed;
@@ -254,11 +382,13 @@
             justify-content: flex-start;
             position: relative;
             z-index: 10;
+            width: 90%;
         }
 
         #intro-logo {
             width: 60px;
             margin-bottom: 20px;
+            cursor: pointer;
         }
 
         .loading-holo-container {
@@ -269,7 +399,7 @@
             width: 95%;
             max-width: 500px;
             margin-top: 5vh;
-            transition: opacity 0.6s ease; /* Añadida transición suave para el contenido */
+            transition: opacity 0.6s ease;
         }
 
         #loadingShip {
@@ -344,7 +474,7 @@
         .text-main {
             position: absolute; top: 22vh; width: 100%; text-align: center;
             font-size: clamp(26px, 5.5vw, 44px); z-index: 20;
-            pointer-events: auto; /* Asegura que detecte el ratón */
+            pointer-events: auto;
         }
 
         .scene {
@@ -381,9 +511,6 @@
             z-index: 1; pointer-events: none;
         }
         .beam.on { opacity: 1; }
-
-        #biometric-btn { width: 100px; cursor: pointer; animation: pulse 2s infinite; margin-top: 20px;}
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
 
         #cursor {
             display: inline-block;
@@ -427,11 +554,12 @@
         <div class="secret-barcode barcode-bottom">En serio te has puesto a descifrar esto... Haztelo mirar. De verdad.</div>
         
         <div class="fixed-layout-container">
-            <img id="intro-logo" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp" class="holo-filter">
-            <div id="introTitle" style="margin-bottom:2vh; font-size: clamp(20px, 5vw, 32px); height: 40px;"></div>
-            <div id="introTouch" style="opacity:0.6; letter-spacing:0.3em; margin-bottom:4vh; font-size: 15px; height: 20px;"></div>
-            <div style="height: 120px; display: flex; align-items: center; justify-content: center;">
-                <img id="biometric-btn" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/880868.png" alt="Scanner" style="display:none;" class="holo-filter">
+            <!-- El logo ahora permite activar la nave forzada -->
+            <img id="intro-logo" src="https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp" class="holo-filter" onclick="forceShipSelection()">
+            <div id="introTitle"></div>
+            <div id="introTouch"></div>
+            <div style="height: 120px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                <button id="security-scan-btn">Initiate security scan</button>
             </div>
         </div>
     </div>
@@ -480,7 +608,10 @@
             <div id="impCommText"></div>
         </div>
         
-        <div id="velocityHud"></div>
+        <div id="velocityHud">
+            <span id="vDigits">000000</span>
+            <span id="vUnit">MGLT</span>
+        </div>
 
         <div class="text-main">
             <span id="mainText"></span><span id="cursor" style="display:none;"></span>
@@ -508,6 +639,31 @@
     </div>
 
     <script>
+        const shipCatalog = {
+            "try_star_wars_xwing_anim.gif": { id: "T-65B", class: "X-WING" },
+            "try_star_wars_TIE_anim.gif": { id: "TIE/IN", class: "TIE INTERCEPT." },
+            "try_star_wars_imperial_anim.gif": { id: "T-4A", class: "LAMBDA SHUTTLE" },
+            "try_star_wars_falcon_anim.gif": { id: "YT-1300", class: "FALCON" },
+            "try_star_wars_destructor2_anim.gif": { id: "ISD-II", class: "STAR DESTROYER" },
+            "try_star_wars_anim.gif": { id: "FETT-1", class: "SLAVE-I" },
+            "nave_espacial-16-all_anim.gif": { id: "SCT-V9", class: "RECON SCOUT" },
+            "nave_espacial-10-all_anim.gif": { id: "FRG-C1", class: "FRIGATE" }
+        };
+        
+        // Función auxiliar para obtener datos por URL
+        function getSpecsByUrl(url) {
+            const fileName = url.split('/').pop();
+            return shipCatalog[fileName] || { id: "UNK-00", class: "UNKNOWN CLASS" };
+        }
+        
+        // --- VARIABLES DE CONFIGURACIÓN ---
+        const nave_forzada = "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_falcon_anim.gif";
+        const nave_forzada_rebelde = "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_xwing_anim.gif";
+        let forcedShipActive = false;
+        let rebelForcedActive = false;
+        
+        let chosenShipIndex = -1; // Guardará el índice de la nave seleccionada para el escaneo
+        
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let stars = [];
@@ -517,6 +673,16 @@
         
         let shipVelocity = 85;
         let displayedVelocity = 85;
+        let lastHudUpdate = 0;
+        const hudUpdateInterval = 20;
+        
+        
+        let shipSpecs = [
+            { id: "SCANNING", class: "..." },
+            { id: "SCANNING", class: "..." },
+            { id: "SCANNING", class: "..." },
+            { id: "SCANNING", class: "..." }
+        ];
 
         function initStars() {
             canvas.width = window.innerWidth;
@@ -537,7 +703,7 @@
             });
         }
 
-        function drawStars() {
+        function drawStars(timestamp) {
             ctx.fillStyle = "black";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -562,7 +728,7 @@
                     star.x += Math.cos(angle) * warpFactor * (dist / 150 + 0.5);
                     star.y += Math.sin(angle) * warpFactor * (dist / 150 + 0.5);
                     
-                    shipVelocity = 80 + Math.pow(warpFactor, 2.2) * 70;
+                    shipVelocity = 85 + Math.pow(warpFactor, 2.7) * 85;
                     
                     if (star.x < 0 || star.x > canvas.width || star.y < 0 || star.y > canvas.height) {
                         star.x = centerX + (Math.random() - 0.5) * 20;
@@ -574,39 +740,56 @@
                     ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    shipVelocity += (Math.random() - 0.5) * 1.5;
-                    shipVelocity = Math.max(75, Math.min(95, shipVelocity));
+                    shipVelocity += (Math.random() - 0.5) * 0.4;
+                    shipVelocity = Math.max(78, Math.min(92, shipVelocity));
                     
-                    star.y += star.speed;
-                    if (star.y > canvas.height) star.y = 0;
+                    const speedMultiplier = (dist / 150) + 0.1;
+                    star.x += Math.cos(angle) * star.speed * speedMultiplier * 2;
+                    star.y += Math.sin(angle) * star.speed * speedMultiplier * 2;
+
+                    // Si la estrella sale de la pantalla, la reaparecemos en el centro
+                    if (star.x < 0 || star.x > canvas.width || star.y < 0 || star.y > canvas.height) {
+                        star.x = centerX + (Math.random() - 0.5) * 40;
+                        star.y = centerY + (Math.random() - 0.5) * 40;
+                    }
                 }
             }
             
-            displayedVelocity += (shipVelocity - displayedVelocity) * 0.08;
+            const lerpSpeed = (warpState === "BRAKING") ? 0.25 : 0.12;
+            displayedVelocity += (shipVelocity - displayedVelocity) * lerpSpeed;
 
-            document.getElementById("velocityHud").textContent =
-                `VELOCITY ${Math.round(displayedVelocity).toLocaleString()} MGLT`;
+            if (timestamp - lastHudUpdate > hudUpdateInterval) {
+                lastHudUpdate = timestamp;
+                const vDigits = document.getElementById("vDigits");
+                const velocityHud = document.getElementById("velocityHud");
                 
-            if (displayedVelocity > 50000) {
-                document.getElementById("velocityHud").style.textShadow =
-                    "0 0 12px currentColor";
-            } else {
-                document.getElementById("velocityHud").style.textShadow =
-                    "0 0 4px currentColor";
-            }    
+                let visualVal = Math.round(displayedVelocity);
+                
+                if (warpState !== "IDLE" && visualVal > 150) {
+                    visualVal = Math.floor(visualVal / 5) * 5; 
+                }
+                
+                vDigits.textContent = visualVal.toString().padStart(0, '0');
+                
+                if (visualVal >= 80000) {
+                    velocityHud.classList.add("overload");
+                } else {
+                    velocityHud.classList.remove("overload");
+                }
+            }
 
             if (warpState === "STRETCHING") {
                 warpFactor += 0.05;
                 warpLength += 0.4;
                 if (warpLength >= 12) warpState = "ACCELERATING";
             } else if (warpState === "ACCELERATING") {
-                warpFactor += 1.2;
+                warpFactor += 1.3;
                 warpLength += 4.5;
                 if (warpFactor >= 45) warpState = "BRAKING";
             } else if (warpState === "BRAKING") {
-                warpFactor *= 0.92; 
-                warpLength *= 0.88; 
-                if (warpLength < 1.1) {
+                warpFactor *= 0.88; 
+                warpLength *= 0.85; 
+                if (warpLength < 1.05) {
                     warpFactor = 0;
                     warpLength = 1;
                     warpState = "IDLE";
@@ -615,86 +798,14 @@
             requestAnimationFrame(drawStars);
         }
 
-        function triggerGlitchSlice(intensity = 5, duration = 200) {
-            const body = document.body;
-            for(let i=0; i<intensity; i++) {
-                const slice = document.createElement('div');
-                slice.className = 'glitch-slice';
-                const topPos = Math.random() * 100;
-                const h = Math.random() * 10 + 2;
-                slice.style.top = topPos + 'vh';
-                slice.style.height = h + 'px';
-                slice.style.transform = `translateX(${(Math.random() - 0.5) * 30}px)`;
-                document.body.appendChild(slice);
-                
-                body.style.transform = `translateX(${(Math.random() - 0.5) * 10}px)`;
-
-                setTimeout(() => {
-                    slice.remove();
-                    body.style.transform = '';
-                }, duration);
+        function updateShipData() {
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`data-${i}`);
+                if (!el) continue;
+                el.innerHTML = generateShipTelemetry(shipSpecs[i - 1], shipRuntimeData[i - 1]);
             }
         }
 
-        setInterval(() => {
-            if (document.getElementById("content").style.display !== "none" && Math.random() > 0.96) {
-                triggerGlitchSlice(2, 100);
-            }
-        }, 2000);
-
-        function triggerWarp() {
-            if (warpState !== "IDLE") return;
-            warpState = "STRETCHING";
-            setTimeout(() => {
-                if (warpState !== "IDLE") warpState = "BRAKING";
-            }, 2200); 
-        }
-
-        function triggerHack() {
-            updateShipData();
-            document.body.classList.add('noise-active');
-            
-            const glitchInterval = setInterval(() => triggerGlitchSlice(8, 150), 100);
-
-            setTimeout(() => {
-                clearInterval(glitchInterval);
-                document.body.classList.remove('noise-active');
-                const isRebel = document.body.classList.toggle('rebel-mode');
-                const logo = document.getElementById('main-logo');
-                const text = document.getElementById('impCommText');
-                
-                if (isRebel) {
-                    logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/Rebel_Alliance_logo.svg.png";
-                    text.textContent = "REBEL INTERFERENCE DETECTED";
-                } else {
-                    logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp";
-                    text.textContent = "IMPERIAL COMMUNICATION SYSTEM";
-                }
-            }, 500);
-        }
-        
-        const shipGifs = [
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_xwing_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_TIE_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_imperial_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_falcon_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_destructor2_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/nave_espacial-16-all_anim.gif",
-            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/nave_espacial-10-all_anim.gif"
-        ];
-
-        function pickRandomShips() {
-            return [...shipGifs].sort(() => Math.random() - 0.5).slice(0, 4);
-        }
-
-        const shipSpecs = [
-            { id: "TIE/X1-77", class: "TIE INTERCEPTOR", mission: "ESCORT DETAIL", destination: "CORUSCANT" },
-            { id: "SCT-V9", class: "RECON SCOUT", mission: "RECON SWEEP", destination: "NABOO" },
-            { id: "FRG-C1", class: "SUPPLY FRIGATE", mission: "SURVEILLANCE", destination: "TATOOINE" },
-            { id: "CRU-H1", class: "HEAVY CRUISER", mission: "SECTOR PATROL", destination: "SCARIF" }
-        ];
-        
         const shipRuntimeData = shipSpecs.map(spec => ({
             shield: rand(82, 100),
             velocity: rand(40, 120),
@@ -704,60 +815,115 @@
         
         function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
         function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-        
-        function fluctuate(value, min, max, delta = 1) {
-            value += (Math.random() * delta * 2) - delta;
-            if (value < min) value = min;
-            if (value > max) value = max;
-            return value;
-        }
-        
+
         function generateShipTelemetry(spec, runtime) {
             const rebelMode = document.body.classList.contains("rebel-mode");
             if (rebelMode) {
-                return `ID:          ${spec.id}\nCLASS:       ${spec.class}\nMISSION:     SIGNAL LOST\nDESTINATION: UNKNOWN\nSHIELD:      OFFLINE\nVELOCITY:    0000 MGLT\nCOORD:       [MISSING LOC.]`;
+                return `ID:          ${spec.id}\nCLASS:       ${spec.class}\nMISSION:     <span class="rebel-blink">SIGNAL LOST</span>\nDESTINATION: <span class="rebel-blink">UNKNOWN</span>\nSHIELD:      <span class="rebel-blink">OFFLINE</span>\nVELOCITY:    <span class="rebel-blink">0000 MGLT</span>\nCOORD:       <span class="rebel-blink">[MISSING LOC.]</span>`;
             }
-            runtime.shield = fluctuate(runtime.shield, 72, 100, 0.4);
-            runtime.velocity = fluctuate(runtime.velocity, 20, 120, 1.2);
-            runtime.coordX = fluctuate(runtime.coordX, 10, 99, 0.03);
-            runtime.coordY = fluctuate(runtime.coordY, 10, 99, 0.03);
+            runtime.shield = fluctuate(runtime.shield, 72, 100, 0.5);
+            runtime.velocity = fluctuate(runtime.velocity, 20, 120, 2);
+            runtime.coordX = fluctuate(runtime.coordX, 10, 99, 0.05);
+            runtime.coordY = fluctuate(runtime.coordY, 10, 99, 0.05);
+            
             return `ID:          ${spec.id}\nCLASS:       ${spec.class}\nMISSION:     ${spec.mission}\nDESTINATION: ${spec.destination}\nSHIELD:      ${Math.round(runtime.shield)}%\nVELOCITY:    ${Math.round(runtime.velocity)} MGLT\nCOORD:       [${runtime.coordX.toFixed(2)}, ${runtime.coordY.toFixed(2)}]`;
         }
+
+        function fluctuate(value, min, max, delta = 1) {
+            value += (Math.random() * delta * 2) - delta;
+            return Math.max(min, Math.min(max, value));
+        }
+
+        function triggerGlitchSlice(intensity = 5, duration = 200, color=null) {
+            const body = document.body;
+            for(let i=0; i<intensity; i++) {
+                const slice = document.createElement('div');
+                slice.className = 'glitch-slice';
+                const topPos = Math.random() * 100;
+                const h = Math.random() * 10 + 2;
+                slice.style.top = topPos + 'vh';
+                slice.style.height = h + 'px';
+                slice.style.transform = `translateX(${(Math.random() - 0.5) * 30}px)`;
+                
+                
+                document.body.appendChild(slice);
+                body.style.transform = `translateX(${(Math.random() - 0.5) * 10}px)`;
+                setTimeout(() => { slice.remove(); body.style.transform = ''; }, duration);
+            }
+        }
+
+        function triggerWarp() {
+            if (warpState !== "IDLE") return;
+            warpState = "STRETCHING";
+            setTimeout(() => { if (warpState !== "IDLE") warpState = "BRAKING"; }, 2500); 
+        }
+
+        function triggerHack() {
+            updateShipData();
+            document.body.classList.add('noise-active');
+            const glitchInterval = setInterval(() => triggerGlitchSlice(8, 150), 100);
+            setTimeout(() => {
+                clearInterval(glitchInterval);
+                document.body.classList.remove('noise-active');
+                const isRebel = document.body.classList.toggle('rebel-mode');
+                const logo = document.getElementById('main-logo');
+                const text = document.getElementById('impCommText');
+                if (isRebel) {
+                    logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/Rebel_Alliance_logo.svg.png";
+                    text.textContent = "REBEL INTERFERENCE DETECTED";
+                } else {
+                    logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nfb9wuu/Imperial_Emblem.webp";
+                    text.textContent = "IMPERIAL COMMUNICATION SYSTEM";
+                }
+            }, 500);
+        }
+
+        const shipGifs = [
+            //"https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_xwing_anim.gif",
+            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_TIE_anim.gif",
+            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_imperial_anim.gif",
+            //"https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_falcon_anim.gif",
+            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_destructor2_anim.gif",
+            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/try_star_wars_anim.gif",
+            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/nave_espacial-16-all_anim.gif",
+            "https://uploads.onecompiler.io/44nfcewhu/44nuu9kzj/nave_espacial-10-all_anim.gif"
+        ];
+                
+        function forceShipSelection() {
         
-        function updateShipData() {
-            for (let i = 1; i <= 4; i++) {
-                const el = document.getElementById(`data-${i}`);
-                if (!el) continue;
-                el.textContent = generateShipTelemetry(shipSpecs[i - 1], shipRuntimeData[i - 1]);
+            // si ya está activado el modo rebelde, no hacer nada
+            if (rebelForcedActive) return;
+        
+            // 10% de probabilidad de activar variante rebelde
+            if (Math.random() < 0.10) {
+                rebelForcedActive = true;
+                forcedShipActive = true;
+                
+                triggerGlitchSlice(9, 400);
+        
+                const logo = document.getElementById('intro-logo');
+                logo.src = "https://uploads.onecompiler.io/44nfcewhu/44nk5qp7d/Rebel_Alliance_logo.svg.png";
+                logo.style.filter = "brightness(0) saturate(100%) invert(25%) sepia(100%) saturate(6000%) hue-rotate(330deg) brightness(1.1)";
+            } else {
+                forcedShipActive = true;
+                
+                triggerGlitchSlice(3, 100);
+                
+        
+                const logo = document.getElementById('intro-logo');
+                logo.style.filter = "brightness(2) drop-shadow(0 0 10px white)";
+                setTimeout(() => {
+                    logo.style.filter = "";
+                }, 300);
             }
         }
 
         const telemetryTemplates = [
-        `      VESSEL ID ....................... ISD-${Math.floor(Math.random()*999)}
-      REACTOR OUTPUT .................. ${rand(82, 100)}%
-      SHIELD INTEGRITY ................ ${rand(70, 100)}%
-      HYPERDRIVE STATUS ............... ONLINE
-      THREAT ANALYSIS ................. LOW`,
-        
-        `      SCANNING NEARBY VESSELS.............
-      COMM INTERFERENCE ............... ${rand(0,100)}%
-      TARGET LOCK ..................... CONFIRMED
-      SCAN RESOLUTION ................. ${rand(80,100)}%
-      SIGNAL CLARITY .................. OPTIMAL`,
-    
-        `      POWER GRID LOAD ................. ${rand(400,900)} MW
-      FUEL RESERVES ................... ${rand(60,100)}%
-      LIFE SUPPORT .................... NOMINAL
-      NEXT JUMP WINDOW ................ ${rand(5,90)} sec
-      COOLANT SYSTEM .................. STABLE`,
-        
-        `      TACTICAL UPLINK ................. SYNCHRONIZED
-      IMPERIAL NETWORK ................ STABLE
-      AUTHORIZATION .................. VERIFIED
-      ENCRYPTION LEVEL ............... ALPHA-7
-      SECURITY PROTOCOL .............. ACTIVE`
+            `      VESSEL ID ................. ISD-${rand(100,999)}\n      REACTOR OUTPUT ............ ${rand(82, 100)}%\n      SHIELD INTEGRITY .......... ${rand(70, 100)}%\n      HYPERDRIVE STATUS ......... ONLINE`,
+            `      SCANNING VESSEL...\n      COMM INTERFERENCE ......... ${rand(0,20)}%\n      TARGET LOCK ............... CONFIRMED\n      SIGNAL CLARITY ............ OPTIMAL`,
+            `      POWER GRID LOAD ........... ${rand(400,900)} MW\n      FUEL RESERVES ............. ${rand(60,100)}%\n      LIFE SUPPORT .............. NOMINAL\n      COOLANT SYSTEM ............ STABLE`
         ];
-        
+
         let telemetryInterval;
         function startTelemetryStream() {
             const stream = document.getElementById("telemetryStream");
@@ -766,78 +932,72 @@
                 stream.innerHTML += block + "\n\n";
                 if (stream.innerHTML.length > 2000) stream.innerHTML = stream.innerHTML.slice(800);
                 stream.scrollTop = stream.scrollHeight;
-            }, 120);
+            }, 500); 
         }
-        function stopTelemetryStream() { clearInterval(telemetryInterval); }
 
-        function type(el, text, defaultSpeed, callback, pauses = {}) {
+        function type(el, text, speed, callback, pauses = {}) {
             let i = 0; el.textContent = "";
             function t() {
                 if (i < text.length) { 
                     el.textContent += text[i];
-                    let currentPause = pauses[i] || 0;
+                    let p = pauses[i] || 0;
                     i++;
-                    setTimeout(t, defaultSpeed + currentPause); 
-                }
-                else if (callback) callback();
+                    setTimeout(t, speed + p); 
+                } else if (callback) callback();
             }
             t();
         }
 
         window.onload = () => {
             initStars();
-            drawStars();
-            setInterval(updateShipData, 120);
+            requestAnimationFrame(drawStars);
+            setInterval(updateShipData, 800); 
             
             type(document.getElementById("introTitle"), "IMPERIAL TRANSMISSION", 50, () => {
-                type(document.getElementById("introTouch"), "confirm identity to proceed", 40, () => {
-                    document.getElementById("biometric-btn").style.display = "block";
+                type(document.getElementById("introTouch"), "secure channel request", 40, () => {
+                    document.getElementById("security-scan-btn").style.display = "block";
                 });
             });
         };
 
-        document.getElementById("biometric-btn").onclick = () => {
-            const intro = document.getElementById("intro");
+        document.getElementById("security-scan-btn").onclick = () => {
+            document.getElementById("intro").style.display = "none";
             const loading = document.getElementById("loading");
-            const loadingContent = document.querySelector(".loading-holo-container");
-            const loadingText = document.getElementById("loadingText");
-            
-            intro.style.display = "none";
             loading.style.display = "flex";
-            const loadingShip = document.getElementById("loadingShip");
-            loadingShip.src = pick(shipGifs);
+            
+            // Lógica de selección de nave
+            if (forcedShipActive) {
+                if (rebelForcedActive) {
+                    chosenShipIndex = shipGifs.indexOf(nave_forzada_rebelde);
+                    document.getElementById("loadingShip").src = nave_forzada_rebelde;
+                } else {
+                    chosenShipIndex = shipGifs.indexOf(nave_forzada);
+                    document.getElementById("loadingShip").src = nave_forzada;
+                }
+            } else {
+                chosenShipIndex = Math.floor(Math.random() * shipGifs.length);
+                document.getElementById("loadingShip").src = shipGifs[chosenShipIndex];
+            }
+            
             startTelemetryStream();
 
-            type(loadingText, "SCANNING SHIP SIGNATURE...", 45, () => {
+            type(document.getElementById("loadingText"), "SCANNING SHIP SIGNATURE...", 45, () => {
                 setTimeout(() => {
-                    loadingText.textContent = "";
-                    type(loadingText, "VERIFYING IMPERIAL CLEARANCE...", 45, () => {
+                    document.getElementById("loadingText").textContent = "";
+                    type(document.getElementById("loadingText"), "VERIFYING IMPERIAL CLEARANCE...", 45, () => {
                         setTimeout(() => {
-                            loadingContent.style.opacity = "0";
-                            document.querySelector(".loading-top-emblem").style.opacity = "0";
-                            
+                            document.querySelector(".loading-holo-container").style.opacity = "0";
                             setTimeout(() => {
-                                stopTelemetryStream();
-                                // Intercambio instantáneo de contenedores (ambos tienen fondo negro)
+                                clearInterval(telemetryInterval);
                                 loading.style.display = "none";
-                                
                                 const access = document.getElementById("access");
                                 access.style.display = "flex";
                                 access.style.opacity = "1";
-                                
-                                const accessText = document.getElementById("accessText");
-                                accessText.textContent = "ACCESS GRANTED";
-                                
-                                setTimeout(() => {
-                                    accessText.classList.add("terminal-message");
-                                }, 50);
-
+                                document.getElementById("accessText").textContent = "ACCESS GRANTED";
+                                setTimeout(() => document.getElementById("accessText").classList.add("terminal-message"), 50);
                                 setTimeout(() => {
                                     access.style.opacity = "0";
-                                    setTimeout(() => {
-                                        access.style.display = "none";
-                                        startMainScene();
-                                    }, 800);
+                                    setTimeout(() => { access.style.display = "none"; startMainScene(); }, 800);
                                 }, 1800);
                             }, 600);
                         }, 900);
@@ -847,36 +1007,53 @@
         };
 
         function startMainScene() {
-            document.getElementById("access").style.display = "none";
             document.getElementById("content").style.display = "block";
+            document.querySelectorAll('.ship-container').forEach(c => c.style.opacity = "1");
             
-            document.querySelectorAll('.ship-container').forEach((c) => {
-                c.style.opacity = "1";
-            });
+            // --- REGLA DE EXCLUSIÓN Y ASIGNACIÓN DE DATOS ---
+            const remainingShips = shipGifs.filter((_, index) => index !== chosenShipIndex);
+            const shipsMenuUrls = [...remainingShips].sort(() => 0.5 - Math.random()).slice(0, 4);
             
-            const selectedShips = pickRandomShips();
+            // Actualizamos tanto la imagen como los specs vinculados
             document.querySelectorAll('.ship-container img').forEach((img, i) => {
-                img.src = selectedShips[i];
+                const url = shipsMenuUrls[i];
+                img.src = url;
+        
+                // Vinculamos metadata técnica real
+                const meta = getSpecsByUrl(url);
+        
+                shipSpecs[i] = {
+                    ...meta,
+                    mission: pick([
+                        "ESCORT DETAIL",
+                        "RECON SWEEP",
+                        "SECTOR PATROL",
+                        "SURVEILLANCE"
+                    ]),
+                    destination: pick([
+                        "CORUSCANT",
+                        "NABOO",
+                        "TATOOINE",
+                        "SCARIF",
+                        "HOTH"
+                    ])
+                };
             });
-
+        
             setTimeout(() => {
                 document.querySelector(".imperial-block").classList.add("show");
                 type(document.getElementById("impCommText"), "IMPERIAL COMMUNICATION SYSTEM", 40, () => {
-                    
                     setTimeout(() => {
                         document.querySelector(".beam").classList.add("on");
                         setTimeout(() => {
                             document.querySelector(".holo").classList.add("on");
-                            
                             setTimeout(() => {
                                 document.getElementById("cursor").style.display = "inline-block";
-                                const stdText = "Save the date...";
-                                const stdPauses = { 3: 600, 7: 600, 12: 400 };
-                                type(document.getElementById("mainText"), stdText, 140, () => {
+                                type(document.getElementById("mainText"), "Save the date...", 140, () => {
                                     setTimeout(typeFinalInfo, 1000);
-                                }, stdPauses);
+                                }, { 3: 600, 7: 600 });
                             }, 3000);
-                        }, 200); 
+                        }, 200);
                     }, 200);
                 });
             }, 500);
